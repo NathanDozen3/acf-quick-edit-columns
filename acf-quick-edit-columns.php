@@ -1,9 +1,11 @@
 <?php
 /**
  * Plugin Name: ACF Quick Edit Columns
+ * Plugin URI: https://github.com/NathanDozen3/acf-quick-edit-columns
  * Description: Adds ACF fields as columns and Quick Edit fields for custom post types in the WordPress admin, with pre-populated values.
- * Version: 1.1.0
+ * Version: 1.2.0
  * Author: Twelve Three Media
+ * Author URI: https://www.digitalmarketingcompany.com/
  * License: GPL-2.0+
  * Text Domain: acf-quick-edit-columns
  */
@@ -194,12 +196,18 @@ function register_columns_and_quick_edit(): void
             foreach ($fields as $column_key => $field) {
                 $field_name = $field['field_name'];
                 $input_name = "acf_{$field_name}";
-                if (isset($_POST[$input_name])) {
-                    $value = in_array($field['type'], ['textarea', 'wysiwyg'], true) ? sanitize_textarea_field($_POST[$input_name]) : sanitize_text_field($_POST[$input_name]);
-                    error_log("ACF Quick Edit Columns: Saving field {$field_name} with value: {$value}");
-                    update_field($field_name, $value, $post_id);
+                if (array_key_exists($input_name, $_POST)) {
+                    $value = $_POST[$input_name];
+                    if ($value === '') {
+                        error_log("ACF Quick Edit Columns: Clearing field {$field_name} for post {$post_id}");
+                        update_field($field_name, '', $post_id);
+                    } else {
+                        $sanitized_value = in_array($field['type'], ['textarea', 'wysiwyg'], true) ? sanitize_textarea_field($value) : sanitize_text_field($value);
+                        error_log("ACF Quick Edit Columns: Saving field {$field_name} with value: {$sanitized_value}");
+                        update_field($field_name, $sanitized_value, $post_id);
+                    }
                 } else {
-                    error_log("ACF Quick Edit Columns: Field {$field_name} not updated (empty or unchanged)");
+                    error_log("ACF Quick Edit Columns: Field {$field_name} not updated (unset)");
                 }
             }
         }, 10, 2);

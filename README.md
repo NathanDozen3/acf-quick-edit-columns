@@ -1,17 +1,18 @@
 # ACF Quick Edit Columns
 
-[![WordPress Plugin Version](https://img.shields.io/badge/version-1.1.0-blue)](https://github.com/twelve-three-media/acf-quick-edit-columns)
+[![WordPress Plugin Version](https://img.shields.io/badge/version-1.2.0-blue)](https://github.com/NathanDozen3/acf-quick-edit-columns)
 [![License](https://img.shields.io/badge/license-GPL--2.0%2B-green)](https://www.gnu.org/licenses/gpl-2.0.html)
 [![WordPress Tested](https://img.shields.io/badge/WordPress-6.6%2B-blue)](https://wordpress.org)
 
 A WordPress plugin that enhances the admin interface by adding Advanced Custom Fields (ACF) as sortable columns and pre-populated Quick Edit fields for all public custom post types (CPTs). Built for flexibility and ease of use, it streamlines content management for any WordPress site using ACF.
 
-Developed by [Twelve Three Media](https://twelvethreemedia.com).
+Developed by [Twelve Three Media](https://www.digitalmarketingcompany.com/).
 
 ## Features
 
 - **Dynamic ACF Columns**: Automatically adds columns for all ACF fields assigned to public CPTs, with `acf_` prefixes to avoid conflicts (e.g., `acf_title` for a `title` field).
 - **Pre-populated Quick Edit**: Enables Quick Edit fields for ACF fields, pre-filled with existing values using JavaScript for a seamless editing experience.
+- **Clearable Fields**: Allows clearing ACF fields by submitting empty inputs in Quick Edit.
 - **Sortable Columns**: All ACF columns are sortable in the admin list table.
 - **Broad Compatibility**: Works with any public CPT and ACF field types (text, textarea, wysiwyg supported; extensible for others).
 - **Secure and Modern**: Includes nonce verification, namespaced code (`AcfQuickEditColumns`), and strict typing for reliability.
@@ -28,9 +29,9 @@ Developed by [Twelve Three Media](https://twelvethreemedia.com).
 1. **Download the Plugin**:
    - Clone the repository:
      ```bash
-     git clone https://github.com/twelve-three-media/acf-quick-edit-columns.git
+     git clone https://github.com/NathanDozen3/acf-quick-edit-columns.git
      ```
-   - Or download the ZIP from the [Releases](https://github.com/twelve-three-media/acf-quick-edit-columns/releases) page.
+   - Or download the ZIP from the [Releases](https://github.com/NathanDozen3/acf-quick-edit-columns/releases) page.
 
 2. **Install the Plugin**:
    - Upload the `acf-quick-edit-columns` folder to `wp-content/plugins/`.
@@ -52,6 +53,7 @@ Developed by [Twelve Three Media](https://twelvethreemedia.com).
 2. **Use Quick Edit**:
    - Click "Quick Edit" on a post row.
    - Edit pre-populated ACF fields (e.g., text input for `title`, textarea for `quote`).
+   - To clear a field, leave the input empty.
    - Click "Update" to save changes, which reflect in the columns.
 
 3. **Sort Columns**:
@@ -85,8 +87,8 @@ Developed by [Twelve Three Media](https://twelvethreemedia.com).
     console.log(acfQuickEdit);
     ```
 
-- **Values Not Saving**:
-  - Check `debug.log` for `Saving Quick Edit data`. Inspect `$_POST`:
+- **Values Not Saving or Clearing**:
+  - Check `debug.log` for `Saving Quick Edit data` or `Clearing field`. Inspect `$_POST`:
     ```php
     error_log('ACF Quick Edit Columns: POST data: ' . print_r($_POST, true));
     ```
@@ -125,10 +127,13 @@ This plugin is licensed under the [GPL-2.0+](https://www.gnu.org/licenses/gpl-2.
 ## Support
 
 For issues, feature requests, or questions:
-- Open an issue on [GitHub](https://github.com/twelve-three-media/acf-quick-edit-columns/issues).
-- Contact [Twelve Three Media](https://twelvethreemedia.com).
+- Open an issue on [GitHub](https://github.com/NathanDozen3/acf-quick-edit-columns/issues).
+- Contact [Twelve Three Media](https://www.digitalmarketingcompany.com/).
 
 ## Changelog
+
+### 1.2.0 (2025-05-19)
+- Added support for clearing ACF fields by submitting empty inputs in Quick Edit.
 
 ### 1.1.0 (2025-05-19)
 - Added JavaScript for pre-populating Quick Edit fields.
@@ -143,4 +148,4 @@ For issues, feature requests, or questions:
 
 ## Credits
 
-Developed by [Twelve Three Media](https://twelvethreemedia.com). Built with ❤️ for the WordPress community.
+Developed by [Twelve Three Media](https://www.digitalmarketingcompany.com/). Built with ❤️ for the WordPress community.
