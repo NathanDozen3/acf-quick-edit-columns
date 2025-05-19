@@ -1,6 +1,6 @@
 # ACF Quick Edit Columns
 
-[![WordPress Plugin Version](https://img.shields.io/badge/version-1.2.0-blue)](https://github.com/NathanDozen3/acf-quick-edit-columns)
+[![WordPress Plugin Version](https://img.shields.io/badge/version-1.3.0-blue)](https://github.com/NathanDozen3/acf-quick-edit-columns)
 [![License](https://img.shields.io/badge/license-GPL--2.0%2B-green)](https://www.gnu.org/licenses/gpl-2.0.html)
 [![WordPress Tested](https://img.shields.io/badge/WordPress-6.6%2B-blue)](https://wordpress.org)
 
@@ -14,7 +14,7 @@ Developed by [Twelve Three Media](https://www.digitalmarketingcompany.com/).
 - **Pre-populated Quick Edit**: Enables Quick Edit fields for ACF fields, pre-filled with existing values using JavaScript for a seamless editing experience.
 - **Clearable Fields**: Allows clearing ACF fields by submitting empty inputs in Quick Edit.
 - **Sortable Columns**: All ACF columns are sortable in the admin list table.
-- **Broad Compatibility**: Works with any public CPT and ACF field types (text, textarea, wysiwyg supported; extensible for others).
+- **Broad Compatibility**: Works with any public CPT and ACF field types (text, textarea, wysiwyg, select, checkbox supported; extensible for others).
 - **Secure and Modern**: Includes nonce verification, namespaced code (`AcfQuickEditColumns`), and strict typing for reliability.
 - **Debugging Support**: Comprehensive error logging to aid troubleshooting.
 
@@ -42,18 +42,22 @@ Developed by [Twelve Three Media](https://www.digitalmarketingcompany.com/).
    - Ensure ACF is installed and active.
 
 4. **Configure ACF**:
-   - In **Custom Fields > Field Groups**, assign ACF fields (e.g., `title` labeled 'Location', `quote` labeled 'Quote') to your CPTs (e.g., `testimonials`).
+   - In **Custom Fields > Field Groups**, assign ACF fields (e.g., `title` labeled 'Location', `quote` labeled 'Quote', `category` as select, `tags` as checkbox) to your CPTs (e.g., `testimonials`).
 
 ## Usage
 
 1. **Access CPT Admin Screen**:
    - Navigate to a CPT admin screen (e.g., `https://yoursite.com/wp-admin/edit.php?post_type=testimonials`).
-   - Verify that ACF fields appear as columns (e.g., 'Location', 'Quote').
+   - Verify that ACF fields appear as columns (e.g., 'Location', 'Quote', 'Category', 'Tags').
 
 2. **Use Quick Edit**:
    - Click "Quick Edit" on a post row.
-   - Edit pre-populated ACF fields (e.g., text input for `title`, textarea for `quote`).
-   - To clear a field, leave the input empty.
+   - Edit pre-populated ACF fields:
+     - Text inputs for text fields (e.g., `title`).
+     - Textareas for textarea or wysiwyg fields (e.g., `quote`).
+     - Dropdowns for select fields (e.g., `category`), supporting single or multiple selections.
+     - Checkboxes for checkbox fields (e.g., `tags`), allowing multiple selections.
+   - To clear a field, leave the input empty (text, textarea, select) or uncheck all options (checkbox).
    - Click "Update" to save changes, which reflect in the columns.
 
 3. **Sort Columns**:
@@ -93,6 +97,7 @@ Developed by [Twelve Three Media](https://www.digitalmarketingcompany.com/).
     error_log('ACF Quick Edit Columns: POST data: ' . print_r($_POST, true));
     ```
   - Ensure nonce verification passes.
+  - For select/checkbox, verify field choices match saved values.
 
 - **Title Field Conflict**:
   - If an ACF field named `title` causes issues, rename it (e.g., `location_title`):
@@ -131,6 +136,9 @@ For issues, feature requests, or questions:
 - Contact [Twelve Three Media](https://www.digitalmarketingcompany.com/).
 
 ## Changelog
+
+### 1.3.0 (2025-05-19)
+- Added support for ACF select and checkbox field types in Quick Edit and columns.
 
 ### 1.2.0 (2025-05-19)
 - Added support for clearing ACF fields by submitting empty inputs in Quick Edit.
