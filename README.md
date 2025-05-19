@@ -1,0 +1,146 @@
+# ACF Quick Edit Columns
+
+[![WordPress Plugin Version](https://img.shields.io/badge/version-1.1.0-blue)](https://github.com/twelve-three-media/acf-quick-edit-columns)
+[![License](https://img.shields.io/badge/license-GPL--2.0%2B-green)](https://www.gnu.org/licenses/gpl-2.0.html)
+[![WordPress Tested](https://img.shields.io/badge/WordPress-6.6%2B-blue)](https://wordpress.org)
+
+A WordPress plugin that enhances the admin interface by adding Advanced Custom Fields (ACF) as sortable columns and pre-populated Quick Edit fields for all public custom post types (CPTs). Built for flexibility and ease of use, it streamlines content management for any WordPress site using ACF.
+
+Developed by [Twelve Three Media](https://twelvethreemedia.com).
+
+## Features
+
+- **Dynamic ACF Columns**: Automatically adds columns for all ACF fields assigned to public CPTs, with `acf_` prefixes to avoid conflicts (e.g., `acf_title` for a `title` field).
+- **Pre-populated Quick Edit**: Enables Quick Edit fields for ACF fields, pre-filled with existing values using JavaScript for a seamless editing experience.
+- **Sortable Columns**: All ACF columns are sortable in the admin list table.
+- **Broad Compatibility**: Works with any public CPT and ACF field types (text, textarea, wysiwyg supported; extensible for others).
+- **Secure and Modern**: Includes nonce verification, namespaced code (`AcfQuickEditColumns`), and strict typing for reliability.
+- **Debugging Support**: Comprehensive error logging to aid troubleshooting.
+
+## Requirements
+
+- **WordPress**: Version 5.0 or higher (tested up to 6.6+).
+- **Advanced Custom Fields**: Free or Pro, version 5.0 or higher.
+- **PHP**: Version 7.4 or higher (strict typing enabled).
+
+## Installation
+
+1. **Download the Plugin**:
+   - Clone the repository:
+     ```bash
+     git clone https://github.com/twelve-three-media/acf-quick-edit-columns.git
+     ```
+   - Or download the ZIP from the [Releases](https://github.com/twelve-three-media/acf-quick-edit-columns/releases) page.
+
+2. **Install the Plugin**:
+   - Upload the `acf-quick-edit-columns` folder to `wp-content/plugins/`.
+   - Alternatively, install via WordPress admin: **Plugins > Add New > Upload Plugin**.
+
+3. **Activate the Plugin**:
+   - Go to **Plugins > Installed Plugins** and activate "ACF Quick Edit Columns".
+   - Ensure ACF is installed and active.
+
+4. **Configure ACF**:
+   - In **Custom Fields > Field Groups**, assign ACF fields (e.g., `title` labeled 'Location', `quote` labeled 'Quote') to your CPTs (e.g., `testimonials`).
+
+## Usage
+
+1. **Access CPT Admin Screen**:
+   - Navigate to a CPT admin screen (e.g., `https://yoursite.com/wp-admin/edit.php?post_type=testimonials`).
+   - Verify that ACF fields appear as columns (e.g., 'Location', 'Quote').
+
+2. **Use Quick Edit**:
+   - Click "Quick Edit" on a post row.
+   - Edit pre-populated ACF fields (e.g., text input for `title`, textarea for `quote`).
+   - Click "Update" to save changes, which reflect in the columns.
+
+3. **Sort Columns**:
+   - Click column headers to sort by ACF field values.
+
+4. **Debugging**:
+   - Enable debugging in `wp-config.php`:
+     ```php
+     define('WP_DEBUG', true);
+     define('WP_DEBUG_LOG', true);
+     define('WP_DEBUG_DISPLAY', false);
+     ```
+   - Check `wp-content/debug.log` for logs prefixed with `ACF Quick Edit Columns:`.
+
+## Troubleshooting
+
+- **Columns or Fields Missing**:
+  - Ensure ACF fields are assigned to the CPT in **Custom Fields > Field Groups**.
+  - Verify the CPT supports Quick Edit:
+    ```php
+    add_action('init', function() {
+        add_post_type_support('your-cpt', 'custom-fields');
+    });
+    ```
+  - Check `debug.log` for `Fields for CPT [name]` or `Running quick_edit_custom_box`.
+
+- **Pre-population Not Working**:
+  - Confirm `acf-quick-edit.js` is loaded (check page source for script tag).
+  - In browser console, verify:
+    ```javascript
+    console.log(acfQuickEdit);
+    ```
+
+- **Values Not Saving**:
+  - Check `debug.log` for `Saving Quick Edit data`. Inspect `$_POST`:
+    ```php
+    error_log('ACF Quick Edit Columns: POST data: ' . print_r($_POST, true));
+    ```
+  - Ensure nonce verification passes.
+
+- **Title Field Conflict**:
+  - If an ACF field named `title` causes issues, rename it (e.g., `location_title`):
+    ```sql
+    UPDATE wp_postmeta
+    SET meta_key = 'location_title'
+    WHERE meta_key = 'title' AND post_id IN (
+        SELECT ID FROM wp_posts WHERE post_type = 'your-cpt'
+    );
+    ```
+
+- **Compatibility Issues**:
+  - Test with a default theme (e.g., Twenty Twenty-Five) and only ACF active.
+  - Ensure ACF is updated.
+
+## Contributing
+
+Contributions are welcome! To contribute:
+
+1. Fork the repository.
+2. Create a feature branch: `git checkout -b feature/your-feature`.
+3. Commit changes: `git commit -m "Add your feature"`.
+4. Push to the branch: `git push origin feature/your-feature`.
+5. Open a pull request.
+
+Please include tests and follow WordPress coding standards.
+
+## License
+
+This plugin is licensed under the [GPL-2.0+](https://www.gnu.org/licenses/gpl-2.0.html).
+
+## Support
+
+For issues, feature requests, or questions:
+- Open an issue on [GitHub](https://github.com/twelve-three-media/acf-quick-edit-columns/issues).
+- Contact [Twelve Three Media](https://twelvethreemedia.com).
+
+## Changelog
+
+### 1.1.0 (2025-05-19)
+- Added JavaScript for pre-populating Quick Edit fields.
+- Introduced `AcfQuickEditColumns` namespace and strict typing.
+- Simplified function names (removed `acf_qec_` prefixes).
+- Added nonce verification for Quick Edit saves.
+- Updated author to "Twelve Three Media".
+- Improved debugging logs.
+
+### 1.0.0
+- Initial release with ACF column and Quick Edit support (no pre-population).
+
+## Credits
+
+Developed by [Twelve Three Media](https://twelvethreemedia.com). Built with ❤️ for the WordPress community.
