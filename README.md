@@ -1,6 +1,6 @@
 # ACF Quick Edit Columns
 
-[![WordPress Plugin Version](https://img.shields.io/badge/version-1.4.1-blue)](https://github.com/NathanDozen3/acf-quick-edit-columns)
+[![WordPress Plugin Version](https://img.shields.io/badge/version-1.5.0-blue)](https://github.com/NathanDozen3/acf-quick-edit-columns)
 [![License](https://img.shields.io/badge/license-GPL--2.0%2B-green)](https://www.gnu.org/licenses/gpl-2.0.html)
 [![WordPress Tested](https://img.shields.io/badge/WordPress-6.6%2B-blue)](https://wordpress.org)
 
@@ -10,11 +10,11 @@ Developed by [Twelve Three Media](https://www.digitalmarketingcompany.com/).
 
 ## Features
 
-- **Dynamic ACF Columns**: Automatically adds columns for all ACF fields assigned to public CPTs, with `acf_` prefixes to avoid conflicts (e.g., `acf_title` for a `title` field).
-- **Pre-populated Quick Edit**: Enables Quick Edit fields for ACF fields, pre-filled with existing values using JavaScript for a seamless editing experience.
+- **Dynamic ACF Columns**: Automatically adds columns for ACF fields (text, textarea, wysiwyg, select, checkbox, image) assigned to public CPTs, with `acf_` prefixes to avoid conflicts (e.g., `acf_title` for a `title` field). Flexible content fields are excluded.
+- **Pre-populated Quick Edit**: Enables Quick Edit fields for supported ACF field types, pre-filled with existing values using JavaScript for a seamless editing experience.
 - **Clearable Fields**: Allows clearing ACF fields by submitting empty inputs in Quick Edit.
 - **Sortable Columns**: All ACF columns are sortable in the admin list table.
-- **Broad Compatibility**: Works with any public CPT and ACF field types (text, textarea, wysiwyg, select, checkbox, image supported; extensible for others).
+- **Broad Compatibility**: Works with any public CPT and supported ACF field types; extensible for additional types.
 - **Enhanced Image UI**: Supports image fields with a thumbnail preview, file name, and media library integration in Quick Edit, mimicking ACF’s edit screen.
 - **Secure and Modern**: Includes nonce verification, namespaced code (`AcfQuickEditColumns`), and strict typing for reliability.
 - **Debugging Support**: Comprehensive error logging to aid troubleshooting.
@@ -49,7 +49,7 @@ Developed by [Twelve Three Media](https://www.digitalmarketingcompany.com/).
 
 1. **Access CPT Admin Screen**:
    - Navigate to a CPT admin screen (e.g., `https://yoursite.com/wp-admin/edit.php?post_type=testimonials`).
-   - Verify that ACF fields appear as columns (e.g., 'Location', 'Photo').
+   - Verify that supported ACF fields appear as columns (e.g., 'Location', 'Photo'). Flexible content fields are not shown.
 
 2. **Use Quick Edit**:
    - Click "Quick Edit" on a post row.
@@ -85,6 +85,11 @@ Developed by [Twelve Three Media](https://www.digitalmarketingcompany.com/).
     });
     ```
   - Check `debug.log` for `Fields for CPT [name]` or `Running quick_edit_custom_box`.
+
+- **Flexible Content Fields Appearing**:
+  - Confirm the field is set as `flexible_content` in ACF settings.
+  - Check `debug.log` for `Skipping flexible content field: [field_name]`.
+  - Ensure plugin version is 1.5.0 or higher.
 
 - **Pre-population Not Working**:
   - Confirm `acf-quick-edit.js` is loaded (check page source for script tag).
@@ -145,6 +150,9 @@ For issues, feature requests, or questions:
 - Contact [Twelve Three Media](https://www.digitalmarketingcompany.com/).
 
 ## Changelog
+
+### 1.5.0 (2025-05-19)
+- Excluded ACF flexible content fields from Quick Edit and admin columns.
 
 ### 1.4.1 (2025-05-19)
 - Fixed pre-population of ACF image fields in Quick Edit to show thumbnail, file name, and remove button.

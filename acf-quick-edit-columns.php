@@ -3,7 +3,7 @@
  * Plugin Name: ACF Quick Edit Columns
  * Plugin URI: https://github.com/NathanDozen3/acf-quick-edit-columns
  * Description: Adds ACF fields as columns and Quick Edit fields for custom post types in the WordPress admin, with pre-populated values.
- * Version: 1.4.1
+ * Version: 1.5.0
  * Author: Twelve Three Media
  * Author URI: https://www.digitalmarketingcompany.com/
  * License: GPL-2.0+
@@ -36,7 +36,7 @@ function check_acf(): bool
 }
 
 /**
- * Get all custom post types and their ACF fields.
+ * Get all custom post types and their ACF fields, excluding flexible content fields.
  *
  * @return array<string, array<string, array{label: string, field_name: string, type: string}>> Array of CPTs and their ACF fields.
  */
@@ -53,6 +53,11 @@ function get_custom_post_types_and_acf_fields(): array
             $group_fields = acf_get_fields($group['key']);
             if ($group_fields) {
                 foreach ($group_fields as $field) {
+                    // Skip flexible content fields
+                    if ($field['type'] === 'flexible_content') {
+                        error_log('ACF Quick Edit Columns: Skipping flexible content field: ' . $field['name']);
+                        continue;
+                    }
                     $column_key = 'acf_' . $field['name'];
                     $fields[$column_key] = [
                         'label' => $field['label'],
