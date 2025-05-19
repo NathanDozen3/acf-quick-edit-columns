@@ -1,6 +1,6 @@
 # ACF Quick Edit Columns
 
-[![WordPress Plugin Version](https://img.shields.io/badge/version-1.4.0-blue)](https://github.com/NathanDozen3/acf-quick-edit-columns)
+[![WordPress Plugin Version](https://img.shields.io/badge/version-1.4.1-blue)](https://github.com/NathanDozen3/acf-quick-edit-columns)
 [![License](https://img.shields.io/badge/license-GPL--2.0%2B-green)](https://www.gnu.org/licenses/gpl-2.0.html)
 [![WordPress Tested](https://img.shields.io/badge/WordPress-6.6%2B-blue)](https://wordpress.org)
 
@@ -92,6 +92,7 @@ Developed by [Twelve Three Media](https://www.digitalmarketingcompany.com/).
     ```javascript
     console.log(acfQuickEdit);
     ```
+  - For image fields, check AJAX response for `acf_quick_edit_get_image` in browser dev tools (Network tab).
 
 - **Image Fields Not Rendering or Saving**:
   - Ensure the image field is set to return an array in ACF settings.
@@ -144,6 +145,9 @@ For issues, feature requests, or questions:
 - Contact [Twelve Three Media](https://www.digitalmarketingcompany.com/).
 
 ## Changelog
+
+### 1.4.1 (2025-05-19)
+- Fixed pre-population of ACF image fields in Quick Edit to show thumbnail, file name, and remove button.
 
 ### 1.4.0 (2025-05-19)
 - Added support for ACF image fields in Quick Edit with thumbnail preview, file name, and media library integration.

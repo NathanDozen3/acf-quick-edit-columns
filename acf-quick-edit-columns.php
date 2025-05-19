@@ -3,7 +3,7 @@
  * Plugin Name: ACF Quick Edit Columns
  * Plugin URI: https://github.com/NathanDozen3/acf-quick-edit-columns
  * Description: Adds ACF fields as columns and Quick Edit fields for custom post types in the WordPress admin, with pre-populated values.
- * Version: 1.4.0
+ * Version: 1.4.1
  * Author: Twelve Three Media
  * Author URI: https://www.digitalmarketingcompany.com/
  * License: GPL-2.0+
@@ -111,7 +111,7 @@ function register_columns_and_quick_edit(): void
                 error_log("ACF Quick Edit Columns: Field {$field_name} for post {$post_id}: " . print_r($value, true));
                 if ($field_type === 'image' && is_array($value)) {
                     if (!empty($value['url'])) {
-                        echo '<img src="' . esc_url($value['url']) . '" style="max-width: 50px; height: auto;" alt="' . esc_attr($value['title'] ?: 'Image') . '">';
+                        echo '<img src="' . esc_url($value['url']) . '" style="max-width: 50px; height: auto;" alt="' . esc_attr($value['title'] ?: 'Image') . '" data-image-id="' . esc_attr($value['ID']) . '">';
                     } else {
                         echo esc_html__('—', 'acf-quick-edit-columns');
                     }
@@ -168,7 +168,7 @@ function register_columns_and_quick_edit(): void
                                     <?php endforeach; ?>
                                 </div>
                             <?php elseif ($field_type === 'image') : ?>
-                                <div class="acf-quick-edit-image">
+                                <div class="acf-quick-edit-image" data-field="<?php echo esc_attr($field_name); ?>">
                                     <div class="acf-image-preview" style="margin-bottom: 10px;">
                                         <img src="" alt="" style="max-width: 100px; height: auto; display: none;">
                                     </div>
@@ -209,7 +209,7 @@ function register_columns_and_quick_edit(): void
             'acf-quick-edit',
             plugin_dir_url(__FILE__) . 'assets/acf-quick-edit.js',
             ['jquery', 'inline-edit-post'],
-            '1.0.2',
+            '1.0.3',
             true
         );
         $field_data = [];
@@ -222,6 +222,7 @@ function register_columns_and_quick_edit(): void
         wp_localize_script('acf-quick-edit', 'acfQuickEdit', [
             'fields' => $field_data,
             'nonce' => wp_create_nonce('acf_quick_edit_nonce'),
+            'ajaxurl' => admin_url('admin-ajax.php'),
         ]);
     });
 
@@ -277,6 +278,28 @@ function register_columns_and_quick_edit(): void
             }
         }, 10, 2);
     }
+
+    // AJAX handler for fetching image field data
+    add_action('wp_ajax_acf_quick_edit_get_image', function (): void {
+        check_ajax_referer('acf_quick_edit_nonce', 'nonce');
+        $post_id = isset($_POST['post_id']) ? absint($_POST['post_id']) : 0;
+        $field_name = isset($_POST['field_name']) ? sanitize_text_field($_POST['field_name']) : '';
+
+        if (!$post_id || !$field_name) {
+            wp_send_json_error(['message' => 'Invalid post ID or field name']);
+        }
+
+        $image = get_field($field_name, $post_id);
+        if ($image && is_array($image)) {
+            wp_send_json_success([
+                'id' => $image['ID'] ?? '',
+                'url' => $image['url'] ?? '',
+                'title' => $image['title'] ?? $image['filename'] ?? '',
+            ]);
+        } else {
+            wp_send_json_success(['id' => '', 'url' => '', 'title' => '']);
+        }
+    });
 }
 
 /**

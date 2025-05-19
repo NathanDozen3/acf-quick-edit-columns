@@ -10,44 +10,42 @@
             var value = $cell.text().trim() !== '—' ? $cell.text().trim() : '';
 
             if (field_type === 'image') {
-                var $img = $cell.find('img');
-                var image_url = $img.length ? $img.attr('src') : '';
-                var image_alt = $img.length ? $img.attr('alt') : '';
                 var $quick_edit = $('#edit-' + post_id).find('.acf-quick-edit-image[data-field="' + field_name + '"]');
                 var $preview = $quick_edit.find('.acf-image-preview img');
                 var $filename = $quick_edit.find('.acf-image-filename');
                 var $input = $quick_edit.find('.acf-image-id');
                 var $remove = $quick_edit.find('.acf-remove-image');
 
-                if (image_url) {
-                    $.ajax({
-                        url: ajaxurl,
-                        method: 'POST',
-                        data: {
-                            action: 'acf_quick_edit_get_image_id',
-                            image_url: image_url,
-                            nonce: acfQuickEdit.nonce
-                        },
-                        success: function(response) {
-                            if (response.success && response.data.id) {
-                                $input.val(response.data.id);
-                                $preview.attr('src', image_url).show();
-                                $filename.text(image_alt || 'Image selected');
-                                $remove.show();
-                            } else {
-                                $input.val('');
-                                $preview.hide();
-                                $filename.text('');
-                                $remove.hide();
-                            }
+                // Fetch image data via AJAX
+                $.ajax({
+                    url: acfQuickEdit.ajaxurl,
+                    method: 'POST',
+                    data: {
+                        action: 'acf_quick_edit_get_image',
+                        post_id: post_id,
+                        field_name: field_name,
+                        nonce: acfQuickEdit.nonce
+                    },
+                    success: function(response) {
+                        if (response.success && response.data.id) {
+                            $input.val(response.data.id);
+                            $preview.attr('src', response.data.url).show();
+                            $filename.text(response.data.title || 'Image selected');
+                            $remove.show();
+                        } else {
+                            $input.val('');
+                            $preview.hide();
+                            $filename.text('');
+                            $remove.hide();
                         }
-                    });
-                } else {
-                    $input.val('');
-                    $preview.hide();
-                    $filename.text('');
-                    $remove.hide();
-                }
+                    },
+                    error: function() {
+                        $input.val('');
+                        $preview.hide();
+                        $filename.text('');
+                        $remove.hide();
+                    }
+                });
             } else if (field_type === 'select') {
                 var $select = $('#edit-' + post_id).find('select[name="acf_' + field_name + '"], select[name="acf_' + field_name + '[]"]');
                 if (value) {
@@ -115,11 +113,5 @@
         $preview.hide();
         $filename.text('');
         $remove.hide();
-    });
-
-    // AJAX handler for getting image ID from URL
-    wp.ajax.post('acf_quick_edit_get_image_id', {
-        image_url: '',
-        nonce: acfQuickEdit.nonce
     });
 })(jQuery);
