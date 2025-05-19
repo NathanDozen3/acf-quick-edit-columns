@@ -9,7 +9,46 @@
             var $cell = $row.find('td.column-' + column_key);
             var value = $cell.text().trim() !== '—' ? $cell.text().trim() : '';
 
-            if (field_type === 'select') {
+            if (field_type === 'image') {
+                var $img = $cell.find('img');
+                var image_url = $img.length ? $img.attr('src') : '';
+                var image_alt = $img.length ? $img.attr('alt') : '';
+                var $quick_edit = $('#edit-' + post_id).find('.acf-quick-edit-image[data-field="' + field_name + '"]');
+                var $preview = $quick_edit.find('.acf-image-preview img');
+                var $filename = $quick_edit.find('.acf-image-filename');
+                var $input = $quick_edit.find('.acf-image-id');
+                var $remove = $quick_edit.find('.acf-remove-image');
+
+                if (image_url) {
+                    $.ajax({
+                        url: ajaxurl,
+                        method: 'POST',
+                        data: {
+                            action: 'acf_quick_edit_get_image_id',
+                            image_url: image_url,
+                            nonce: acfQuickEdit.nonce
+                        },
+                        success: function(response) {
+                            if (response.success && response.data.id) {
+                                $input.val(response.data.id);
+                                $preview.attr('src', image_url).show();
+                                $filename.text(image_alt || 'Image selected');
+                                $remove.show();
+                            } else {
+                                $input.val('');
+                                $preview.hide();
+                                $filename.text('');
+                                $remove.hide();
+                            }
+                        }
+                    });
+                } else {
+                    $input.val('');
+                    $preview.hide();
+                    $filename.text('');
+                    $remove.hide();
+                }
+            } else if (field_type === 'select') {
                 var $select = $('#edit-' + post_id).find('select[name="acf_' + field_name + '"], select[name="acf_' + field_name + '[]"]');
                 if (value) {
                     var values = value.split(', ');
@@ -33,5 +72,54 @@
         if ($nonce.length === 0) {
             $('#edit-' + post_id).append('<input type="hidden" name="acf_quick_edit_nonce" value="' + acfQuickEdit.nonce + '">');
         }
+    });
+
+    // Initialize media library for image fields
+    $(document).on('click', '.acf-select-image', function() {
+        var $button = $(this);
+        var $container = $button.closest('.acf-quick-edit-image');
+        var $preview = $container.find('.acf-image-preview img');
+        var $filename = $container.find('.acf-image-filename');
+        var $input = $container.find('.acf-image-id');
+        var $remove = $container.find('.acf-remove-image');
+
+        var media = wp.media({
+            title: 'Select Image',
+            multiple: false,
+            library: {
+                type: 'image'
+            }
+        });
+
+        media.on('select', function() {
+            var attachment = media.state().get('selection').first().toJSON();
+            $input.val(attachment.id);
+            $preview.attr('src', attachment.url).show();
+            $filename.text(attachment.title || attachment.filename);
+            $remove.show();
+        });
+
+        media.open();
+    });
+
+    // Handle image removal
+    $(document).on('click', '.acf-remove-image', function() {
+        var $button = $(this);
+        var $container = $button.closest('.acf-quick-edit-image');
+        var $preview = $container.find('.acf-image-preview img');
+        var $filename = $container.find('.acf-image-filename');
+        var $input = $container.find('.acf-image-id');
+        var $remove = $container.find('.acf-remove-image');
+
+        $input.val('');
+        $preview.hide();
+        $filename.text('');
+        $remove.hide();
+    });
+
+    // AJAX handler for getting image ID from URL
+    wp.ajax.post('acf_quick_edit_get_image_id', {
+        image_url: '',
+        nonce: acfQuickEdit.nonce
     });
 })(jQuery);

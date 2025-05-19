@@ -1,0 +1,29 @@
+.acf-quick-edit-image {
+    margin-bottom: 10px;
+}
+
+.acf-image-preview img {
+    max-width: 100px;
+    height: auto;
+    border: 1px solid #ddd;
+}
+
+.acf-image-filename {
+    font-size: 12px;
+    color: #555;
+    margin: 0 0 10px;
+}
+
+.acf-select-image,
+.acf-remove-image {
+    margin-right: 5px;
+}
+
+.acf-quick-edit-checkboxes {
+    margin-top: 5px;
+}
+
+.acf-checkbox {
+    display: block;
+    margin-bottom: 5px;
+}

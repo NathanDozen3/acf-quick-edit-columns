@@ -3,7 +3,7 @@
  * Plugin Name: ACF Quick Edit Columns
  * Plugin URI: https://github.com/NathanDozen3/acf-quick-edit-columns
  * Description: Adds ACF fields as columns and Quick Edit fields for custom post types in the WordPress admin, with pre-populated values.
- * Version: 1.3.0
+ * Version: 1.4.0
  * Author: Twelve Three Media
  * Author URI: https://www.digitalmarketingcompany.com/
  * License: GPL-2.0+
@@ -106,9 +106,16 @@ function register_columns_and_quick_edit(): void
             error_log("ACF Quick Edit Columns: Running manage_{$post_type}_posts_custom_column for column {$column}, post {$post_id}");
             if (isset($fields[$column])) {
                 $field_name = $fields[$column]['field_name'];
+                $field_type = $fields[$column]['type'];
                 $value = get_field($field_name, $post_id);
                 error_log("ACF Quick Edit Columns: Field {$field_name} for post {$post_id}: " . print_r($value, true));
-                if (is_array($value)) {
+                if ($field_type === 'image' && is_array($value)) {
+                    if (!empty($value['url'])) {
+                        echo '<img src="' . esc_url($value['url']) . '" style="max-width: 50px; height: auto;" alt="' . esc_attr($value['title'] ?: 'Image') . '">';
+                    } else {
+                        echo esc_html__('—', 'acf-quick-edit-columns');
+                    }
+                } elseif (is_array($value)) {
                     echo esc_html(implode(', ', array_map('strval', $value)) ?: '—');
                 } else {
                     echo esc_html($value ?: '—');
@@ -160,6 +167,16 @@ function register_columns_and_quick_edit(): void
                                         </label>
                                     <?php endforeach; ?>
                                 </div>
+                            <?php elseif ($field_type === 'image') : ?>
+                                <div class="acf-quick-edit-image">
+                                    <div class="acf-image-preview" style="margin-bottom: 10px;">
+                                        <img src="" alt="" style="max-width: 100px; height: auto; display: none;">
+                                    </div>
+                                    <p class="acf-image-filename" style="margin: 0 0 10px; font-size: 12px;"></p>
+                                    <input type="hidden" name="acf_<?php echo esc_attr($field_name); ?>" class="acf-quick-edit acf-image-id" value="">
+                                    <button type="button" class="button acf-select-image"><?php esc_html_e('Select Image', 'acf-quick-edit-columns'); ?></button>
+                                    <button type="button" class="button acf-remove-image" style="display: none;"><?php esc_html_e('Remove', 'acf-quick-edit-columns'); ?></button>
+                                </div>
                             <?php else : ?>
                                 <input type="text" name="acf_<?php echo esc_attr($field_name); ?>" class="acf-quick-edit" value="">
                             <?php endif; ?>
@@ -171,7 +188,7 @@ function register_columns_and_quick_edit(): void
         }, 10, 2);
     }
 
-    // Enqueue JavaScript for pre-populating Quick Edit fields
+    // Enqueue JavaScript and CSS for pre-populating Quick Edit fields
     add_action('admin_enqueue_scripts', function (string $hook) use ($cpt_fields): void {
         if ($hook !== 'edit.php') {
             return;
@@ -181,11 +198,18 @@ function register_columns_and_quick_edit(): void
             return;
         }
 
+        wp_enqueue_media(); // Enqueue media library scripts
+        wp_enqueue_style(
+            'acf-quick-edit',
+            plugin_dir_url(__FILE__) . 'assets/acf-quick-edit.css',
+            [],
+            '1.0.0'
+        );
         wp_enqueue_script(
             'acf-quick-edit',
             plugin_dir_url(__FILE__) . 'assets/acf-quick-edit.js',
             ['jquery', 'inline-edit-post'],
-            '1.0.1',
+            '1.0.2',
             true
         );
         $field_data = [];
@@ -227,7 +251,11 @@ function register_columns_and_quick_edit(): void
                         error_log("ACF Quick Edit Columns: Clearing field {$field_name} for post {$post_id}");
                         update_field($field_name, $field_type === 'checkbox' ? [] : '', $post_id);
                     } else {
-                        if ($field_type === 'select') {
+                        if ($field_type === 'image') {
+                            $sanitized_value = absint($value);
+                            error_log("ACF Quick Edit Columns: Saving image field {$field_name} with ID: {$sanitized_value}");
+                            update_field($field_name, $sanitized_value, $post_id);
+                        } elseif ($field_type === 'select') {
                             if (!empty($acf_field['multiple'])) {
                                 $sanitized_value = array_map('sanitize_text_field', is_array($value) ? $value : [$value]);
                             } else {
