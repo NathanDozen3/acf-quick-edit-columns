@@ -3,7 +3,7 @@
  * Plugin Name: ACF Quick Edit Columns
  * Plugin URI: https://github.com/NathanDozen3/acf-quick-edit-columns
  * Description: Adds ACF fields as columns and Quick Edit fields for custom post types in the WordPress admin, with pre-populated values.
- * Version: 1.5.0
+ * Version: 1.5.1
  * Author: Twelve Three Media
  * Author URI: https://www.digitalmarketingcompany.com/
  * License: GPL-2.0+
@@ -164,11 +164,11 @@ function register_columns_and_quick_edit(): void
                                     <?php endforeach; ?>
                                 </select>
                             <?php elseif ($field_type === 'checkbox') : ?>
-                                <div class="acf-quick-edit-checkboxes">
+                                <div class="acf-quick-edit-checkboxes acf-checkbox-grid">
                                     <?php foreach ($field['choices'] as $value => $label) : ?>
                                         <label class="acf-checkbox">
                                             <input type="checkbox" name="acf_<?php echo esc_attr($field_name); ?>[]" value="<?php echo esc_attr($value); ?>" class="acf-quick-edit">
-                                            <?php echo esc_html($label); ?>
+                                            <span class="acf-checkbox-label"><?php echo esc_html($label); ?></span>
                                         </label>
                                     <?php endforeach; ?>
                                 </div>
@@ -208,13 +208,13 @@ function register_columns_and_quick_edit(): void
             'acf-quick-edit',
             plugin_dir_url(__FILE__) . 'assets/acf-quick-edit.css',
             [],
-            '1.0.0'
+            '1.0.1' // Updated version
         );
         wp_enqueue_script(
             'acf-quick-edit',
             plugin_dir_url(__FILE__) . 'assets/acf-quick-edit.js',
             ['jquery', 'inline-edit-post'],
-            '1.0.3',
+            '1.0.4', // Updated version
             true
         );
         $field_data = [];

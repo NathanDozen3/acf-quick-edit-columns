@@ -151,6 +151,9 @@ For issues, feature requests, or questions:
 
 ## Changelog
 
+### 1.5.1 (2025-05-20)
+- Enhanced checkbox UI in Quick Edit with a responsive grid layout and improved styling.
+
 ### 1.5.0 (2025-05-19)
 - Excluded ACF flexible content fields from Quick Edit and admin columns.
 
