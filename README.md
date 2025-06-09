@@ -1,6 +1,6 @@
 # ACF Quick Edit Columns
 
-[![WordPress Plugin Version](https://img.shields.io/badge/version-1.5.0-blue)](https://github.com/NathanDozen3/acf-quick-edit-columns)
+[![WordPress Plugin Version](https://img.shields.io/badge/version-1.5.2-blue)](https://github.com/NathanDozen3/acf-quick-edit-columns)
 [![License](https://img.shields.io/badge/license-GPL--2.0%2B-green)](https://www.gnu.org/licenses/gpl-2.0.html)
 [![WordPress Tested](https://img.shields.io/badge/WordPress-6.6%2B-blue)](https://wordpress.org)
 
@@ -150,6 +150,13 @@ For issues, feature requests, or questions:
 - Contact [Twelve Three Media](https://www.digitalmarketingcompany.com/).
 
 ## Changelog
+
+### 1.5.2 (2025-06-09)
+- Improved Select2 integration for post object fields: results are now grouped by post type (optgroups) in Quick Edit, matching the main post edit page.
+- Fixed Select2 AJAX response structure to ensure compatibility with grouped results.
+- Enhanced debugging and error logging for AJAX handlers.
+- Improved compatibility with all public custom post types, posts, pages, and media in post object searches.
+- Minor code cleanup and adherence to WordPress coding standards.
 
 ### 1.5.1 (2025-05-20)
 - Enhanced checkbox UI in Quick Edit with a responsive grid layout and improved styling.
