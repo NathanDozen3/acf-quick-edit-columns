@@ -1,6 +1,6 @@
 # ACF Quick Edit Columns
 
-[![WordPress Plugin Version](https://img.shields.io/badge/version-1.5.2-blue)](https://github.com/NathanDozen3/acf-quick-edit-columns)
+[![WordPress Plugin Version](https://img.shields.io/badge/version-1.5.4-blue)](https://github.com/NathanDozen3/acf-quick-edit-columns)
 [![License](https://img.shields.io/badge/license-GPL--2.0%2B-green)](https://www.gnu.org/licenses/gpl-2.0.html)
 [![WordPress Tested](https://img.shields.io/badge/WordPress-6.6%2B-blue)](https://wordpress.org)
 
@@ -150,6 +150,11 @@ For issues, feature requests, or questions:
 - Contact [Twelve Three Media](https://www.digitalmarketingcompany.com/).
 
 ## Changelog
+
+### 1.5.4 (2025-06-10)
+- Fixed: ACF image fields in admin columns now render as images instead of raw HTML code. Only image fields allow HTML output; all other fields remain escaped for security.
+- Improved: Output escaping and field type handling in admin column rendering for better security and compatibility.
+- Documentation and version bump.
 
 ### 1.5.3 (2025-06-10)
 - Added `get_acf_fields_by_post_type()` utility for retrieving ACF fields by post type.

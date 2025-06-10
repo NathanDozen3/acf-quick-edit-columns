@@ -3,7 +3,7 @@
  * Plugin Name: ACF Quick Edit Columns
  * Plugin URI: https://github.com/NathanDozen3/acf-quick-edit-columns
  * Description: Adds ACF fields as columns and Quick Edit fields for custom post types in the WordPress admin, with pre-populated values.
- * Version: 1.5.2
+ * Version: 1.5.4
  * Author: Twelve Three Media
  * Author URI: https://www.digitalmarketingcompany.com/
  * License: GPL-2.0+
@@ -28,8 +28,14 @@ require __DIR__ . '/inc/register-ajax.php';
  * Add a filter to make ACF fields sortable in the admin edit screen for all custom post types.
  */
 function add_sortable_columns_filter_for_all_custom_post_types(): void {
-	foreach (get_custom_post_types() as $post_type) {
-		add_filter("manage_edit-{$post_type->name}_sortable_columns",'AcfQuickEditColumns\\manage_edit_sortable_columns');
+	if ( ! is_admin() ) {
+		return;
+	}
+	foreach ( get_custom_post_types() as $post_type ) {
+		add_filter(
+			"manage_edit-{$post_type->name}_sortable_columns",
+			__NAMESPACE__ . '\\manage_edit_sortable_columns'
+		);
 	}
 }
 add_action('init', __NAMESPACE__ . '\\add_sortable_columns_filter_for_all_custom_post_types', 20);
@@ -71,7 +77,7 @@ function enqueue_scripts( string $hook ): void {
 		'acf-quick-edit',
 		plugin_dir_url(__FILE__) . 'assets/acf-quick-edit.css',
 		[],
-		'1.0.1' // Updated version
+		'1.5.4' // Updated version
 	);
 	
 	wp_enqueue_style('select2', 'https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css', [], '4.1.0-rc.0');
@@ -81,7 +87,7 @@ function enqueue_scripts( string $hook ): void {
 		'acf-quick-edit',
 		plugin_dir_url(__FILE__) . 'assets/acf-quick-edit.js',
 		['jquery', 'inline-edit-post', 'media-editor', 'select2'],
-		'1.1.2',
+		'1.5.4',
 		true
 	);
 

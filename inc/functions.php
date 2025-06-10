@@ -1,4 +1,14 @@
 <?php
+/**
+ * ACF Quick Edit Columns - Utility and Column Management Functions
+ *
+ * @package   acf-quick-edit-columns
+ * @author    Nathan Johnson
+ * @copyright 2024 Nathan Johnson
+ * @license   GPL-2.0-or-later
+ * @link      https://github.com/nathan-johnson/acf-quick-edit-columns
+ * @since     1.0.0
+ */
 declare(strict_types=1);
 namespace AcfQuickEditColumns;
 
@@ -111,6 +121,7 @@ function get_acf_fields_by_post_type( string $post_type ): array {
  * @param array<string, string> $columns Existing columns.
  * @param string $post_type The post type slug.
  * @return array<string, string> Modified columns with ACF fields added.
+ * @since 1.0.0
  */
 function manage_posts_columns(array $columns, string $post_type): array {
 	$fields = get_acf_fields_by_post_type($post_type);
@@ -128,14 +139,15 @@ function manage_posts_columns(array $columns, string $post_type): array {
 	}
 	return $new_columns;
 }
-add_filter('manage_posts_columns', 'AcfQuickEditColumns\manage_posts_columns', 10, 2);
+add_filter('manage_posts_columns', __NAMESPACE__ . '\\manage_posts_columns', 10, 2);
 
 /**
- * Add ACF fields as columns in the pages list table.
+ * Output ACF field value for custom columns in posts/pages list table.
  *
- * @param array<string, string> $columns Existing columns.
+ * @param string $column The column key.
  * @param int $post_id The post ID.
- * @return array<string, string> Modified columns with ACF fields added.
+ * @return void
+ * @since 1.0.0
  */
 function manage_pages_custom_column(string $column, int $post_id): void {
 	$fields = get_acf_fields_by_post_type(get_post_type($post_id));
@@ -144,27 +156,36 @@ function manage_pages_custom_column(string $column, int $post_id): void {
 	}
 	$field_name = $fields[$column]['field_name'];
 	$field_type = $fields[$column]['type'];
-	$output = get_field( $field_name, $post_id );
+	$output = get_field($field_name, $post_id);
 
 	/**
 	 * Filter the output for ACF Quick Edit columns.
-	 * 
+	 *
 	 * @param string $output The default output.
 	 * @param int $post_id The post ID.
 	 * @param string $field_name The field name.
 	 * @param string $field_type The field type.
 	 * @return string The formatted output.
 	 */
-	echo apply_filters( "acf_quick_edit_columns_{$field_type}", $output, $post_id, $field_name, $field_type );
+	$filtered = apply_filters("acf_quick_edit_columns_{$field_type}", $output, $post_id, $field_name, $field_type);
+
+	if ($field_type === 'image') {
+		// Allow safe HTML for images (e.g., <img> tags).
+		echo wp_kses_post($filtered);
+	} else {
+		echo esc_html($filtered);
+	}
 }
-add_action('manage_pages_custom_column', 'AcfQuickEditColumns\manage_pages_custom_column', 10, 2);
-add_action('manage_posts_custom_column', 'AcfQuickEditColumns\manage_pages_custom_column', 10, 2);
+add_action('manage_pages_custom_column', __NAMESPACE__ . '\\manage_pages_custom_column', 10, 2);
+add_action('manage_posts_custom_column', __NAMESPACE__ . '\\manage_pages_custom_column', 10, 2);
 
 /**
  * Render the ACF fields in the Quick Edit box.
  *
  * @param string $column_name The column name.
  * @param string $screen_post_type The post type of the current screen.
+ * @return void
+ * @since 1.0.0
  */
 function quick_edit_custom_box(string $column_name, string $screen_post_type): void {
 	static $number_of_quick_edit_fields_rendered;
@@ -188,8 +209,11 @@ function quick_edit_custom_box(string $column_name, string $screen_post_type): v
 	$field_label = $fields[$column_name]['label'];
 	$field_type = $fields[$column_name]['type'];
 	$field = acf_get_field($field_name);
+	if (!$field) {
+		return;
+	}
 	?>
-	<fieldset class="inline-edit-col-<?php echo $number_of_quick_edit_fields_rendered % 2 === 0 ? 'right' : 'left'; ?>">
+	<fieldset class="inline-edit-col-<?php echo esc_attr($number_of_quick_edit_fields_rendered % 2 === 0 ? 'right' : 'left'); ?>">
 		<div class="inline-edit-col">
 			<label>
 				<span class="title"><?php echo esc_html($field_label); ?></span>
@@ -200,18 +224,18 @@ function quick_edit_custom_box(string $column_name, string $screen_post_type): v
 						<?php if (empty($field['multiple'])) : ?>
 							<option value=""><?php esc_html_e('None', 'acf-quick-edit-columns'); ?></option>
 						<?php endif; ?>
-						<?php foreach ($field['choices'] as $value => $label) : ?>
+						<?php if (!empty($field['choices']) && is_array($field['choices'])) : foreach ($field['choices'] as $value => $label) : ?>
 							<option value="<?php echo esc_attr($value); ?>"><?php echo esc_html($label); ?></option>
-						<?php endforeach; ?>
+						<?php endforeach; endif; ?>
 					</select>
 				<?php elseif ($field_type === 'checkbox') : ?>
 					<div class="acf-quick-edit-checkboxes acf-checkbox-grid">
-						<?php foreach ($field['choices'] as $value => $label) : ?>
+						<?php if (!empty($field['choices']) && is_array($field['choices'])) : foreach ($field['choices'] as $value => $label) : ?>
 							<label class="acf-checkbox">
 								<input type="checkbox" name="acf_<?php echo esc_attr($field_name); ?>[]" value="<?php echo esc_attr($value); ?>" class="acf-quick-edit">
 								<span class="acf-checkbox-label"><?php echo esc_html($label); ?></span>
 							</label>
-						<?php endforeach; ?>
+						<?php endforeach; endif; ?>
 					</div>
 				<?php elseif ($field_type === 'image') : ?>
 					<div class="acf-quick-edit-image" data-field="<?php echo esc_attr($field_name); ?>">
@@ -227,7 +251,7 @@ function quick_edit_custom_box(string $column_name, string $screen_post_type): v
 					<select name="acf_<?php echo esc_attr($field_name); ?><?php echo !empty($field['multiple']) ? '[]' : ''; ?>"
 							class="acf-quick-edit-query acf-post-object"
 							<?php echo !empty($field['multiple']) ? 'multiple' : ''; ?>>
-						<option value="">Select</option>
+						<option value=""><?php esc_html_e('Select', 'acf-quick-edit-columns'); ?></option>
 					</select>
 				<?php else : ?>
 					<input type="text" name="acf_<?php echo esc_attr($field_name); ?>" class="acf-quick-edit" value="">
@@ -238,4 +262,4 @@ function quick_edit_custom_box(string $column_name, string $screen_post_type): v
 	</fieldset>
 	<?php
 }
-add_action('quick_edit_custom_box', 'AcfQuickEditColumns\quick_edit_custom_box', 10, 2);
+add_action('quick_edit_custom_box', __NAMESPACE__ . '\\quick_edit_custom_box', 10, 2);
