@@ -263,3 +263,166 @@ function quick_edit_custom_box(string $column_name, string $screen_post_type): v
 	<?php
 }
 add_action('quick_edit_custom_box', __NAMESPACE__ . '\\quick_edit_custom_box', 10, 2);
+
+/**
+ * Get supported ACF field types for Quick Edit.
+ *
+ * @return array
+ */
+function get_supported_quick_edit_field_types(): array {
+    $types = [
+        'text', 'textarea', 'wysiwyg', 'select', 'checkbox', 'radio', 'image', 'date_picker', 'datetime_picker', 'time_picker', 'file', 'gallery', 'true_false', 'relationship', 'post_object', 'page_link', 'user', 'taxonomy', 'google_map', 'color_picker', 'repeater', 'group', 'clone',
+    ];
+    /**
+     * Filter the supported ACF field types for Quick Edit.
+     *
+     * @param array $types
+     */
+    return apply_filters('acf_quick_edit_supported_field_types', $types);
+}
+
+/**
+ * Render a Quick Edit field, allowing extensions for custom field types.
+ *
+ * @param string $field_type
+ * @param array $field
+ * @param int $post_id
+ * @return string|null
+ */
+function render_quick_edit_field($field_type, $field, $post_id) {
+    /**
+     * Filter to allow custom rendering of Quick Edit fields by type.
+     *
+     * @param string|null $output
+     * @param array $field
+     * @param int $post_id
+     */
+    return apply_filters("acf_quick_edit_render_field_{$field_type}", null, $field, $post_id);
+}
+
+/**
+ * Allow custom sanitization of Quick Edit field values by type.
+ *
+ * @param string $field_type
+ * @param mixed $value
+ * @param array $field
+ * @param int $post_id
+ * @return mixed
+ */
+function sanitize_quick_edit_field_value($field_type, $value, $field, $post_id) {
+    /**
+     * Filter to allow custom sanitization of Quick Edit field values by type.
+     *
+     * @param mixed $value
+     * @param array $field
+     * @param int $post_id
+     */
+    return apply_filters("acf_quick_edit_sanitize_field_{$field_type}", $value, $field, $post_id);
+}
+
+/**
+ * Sanitize core ACF field types for Quick Edit (fallback if no custom filter is present).
+ *
+ * @param string $field_type
+ * @param mixed $value
+ * @param array $field
+ * @return mixed
+ */
+function sanitize_core_quick_edit_field_value($field_type, $value, $field) {
+    switch ($field_type) {
+        case 'text':
+        case 'color_picker':
+        case 'date_picker':
+        case 'datetime_picker':
+        case 'time_picker':
+        case 'page_link':
+        case 'user':
+        case 'post_object':
+        case 'radio':
+            return sanitize_text_field($value);
+        case 'textarea':
+        case 'wysiwyg':
+            return wp_kses_post($value);
+        case 'select':
+            if (!empty($field['multiple'])) {
+                return is_array($value) ? array_map('sanitize_text_field', $value) : [];
+            }
+            return sanitize_text_field($value);
+        case 'checkbox':
+            return is_array($value) ? array_map('sanitize_text_field', $value) : [];
+        case 'true_false':
+            return $value ? 1 : 0;
+        case 'image':
+        case 'file':
+            return absint($value);
+        case 'gallery':
+            return is_array($value) ? array_map('absint', $value) : [];
+        case 'relationship':
+            return is_array($value) ? array_map('absint', $value) : [];
+        case 'taxonomy':
+            return is_array($value) ? array_map('sanitize_text_field', $value) : sanitize_text_field($value);
+        case 'group':
+        case 'repeater':
+        case 'clone':
+            // For complex types, rely on ACF's own sanitization.
+            return $value;
+        default:
+            return $value;
+    }
+}
+
+/**
+ * Save Quick Edit data for ACF fields.
+ *
+ * @param int $post_id The post ID.
+ * @param \WP_Post $post The post object.
+ * @return void
+ * @since 1.0.0
+ */
+function save_post( int $post_id, \WP_Post $post ): void {
+    $post_type = $post->post_type;
+    $fields = get_acf_fields_by_post_type($post_type);
+    try {
+        if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
+            return;
+        }
+        if (!current_user_can('edit_post', $post_id)) {
+            return;
+        }
+        if (!isset($_POST['acf_quick_edit_nonce']) || !wp_verify_nonce($_POST['acf_quick_edit_nonce'], 'acf_quick_edit_nonce')) {
+            return;
+        }
+        $supported_types = get_supported_quick_edit_field_types();
+        foreach ($fields as $column_key => $field) {
+            $field_name = $field['field_name'] ?? '';
+            $field_type = $field['type'] ?? '';
+            $input_name = "acf_{$field_name}";
+            if (empty($field_name) || empty($field_type)) {
+                continue;
+            }
+            if (!in_array($field_type, $supported_types, true)) {
+                continue;
+            }
+            if (!isset($_POST[$input_name])) {
+                continue;
+            }
+            $value = $_POST[$input_name];
+            $acf_field = acf_get_field($field_name);
+            if (!$acf_field) {
+                continue;
+            }
+            // Allow custom sanitization
+            $filtered_value = sanitize_quick_edit_field_value($field_type, $value, $acf_field, $post_id);
+            // Always apply core sanitization for core types as a fallback
+            $core_types = get_supported_quick_edit_field_types();
+            if (in_array($field_type, $core_types, true)) {
+                $filtered_value = sanitize_core_quick_edit_field_value($field_type, $filtered_value, $acf_field);
+            }
+            update_field($field_name, $filtered_value, $post_id);
+        }
+        delete_transient('acf_quick_edit_columns_fields');
+    } catch (\Exception $e) {
+        // Optionally log error
+    }
+}
+add_action('save_post', __NAMESPACE__ . '\\save_post', 10, 2);
