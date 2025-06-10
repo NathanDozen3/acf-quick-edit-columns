@@ -1,52 +1,52 @@
 .acf-quick-edit-image {
-    margin-bottom: 10px;
+	margin-bottom: 10px;
 }
 
 .acf-image-preview img {
-    max-width: 100px;
-    height: auto;
-    border: 1px solid #ddd;
+	max-width: 100px;
+	height: auto;
+	border: 1px solid #ddd;
 }
 
 .acf-image-filename {
-    font-size: 12px;
-    color: #555;
-    margin: 0 0 10px;
+	font-size: 12px;
+	color: #555;
+	margin: 0 0 10px;
 }
 
 .acf-select-image,
 .acf-remove-image {
-    margin-right: 5px;
+	margin-right: 5px;
 }
 
 .acf-quick-edit-checkboxes {
-    margin-top: 5px;
+	margin-top: 5px;
 }
 
 .acf-checkbox {
-    display: block;
-    margin-bottom: 5px;
+	display: block;
+	margin-bottom: 5px;
 }
 
 .acf-checkbox-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: 10px;
-    margin-top: 8px;
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+	gap: 10px;
+	margin-top: 8px;
 }
 
 .acf-checkbox-label {
-    margin-left: 5px;
-    font-size: 14px;
-    color: #333;
+	margin-left: 5px;
+	font-size: 14px;
+	color: #333;
 }
 
 .acf-checkbox input[type="checkbox"] {
-    vertical-align: middle;
+	vertical-align: middle;
 }
 
 .acf-checkbox:hover {
-    background-color: #f5f5f5;
-    padding: 2px 4px;
-    border-radius: 3px;
+	background-color: #f5f5f5;
+	padding: 2px 4px;
+	border-radius: 3px;
 }

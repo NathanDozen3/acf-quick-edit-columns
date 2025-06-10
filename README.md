@@ -151,6 +151,13 @@ For issues, feature requests, or questions:
 
 ## Changelog
 
+### 1.5.3 (2025-06-10)
+- Added `get_acf_fields_by_post_type()` utility for retrieving ACF fields by post type.
+- Improved Quick Edit save logic to use the new utility and better field sanitization.
+- Enhanced Select2 AJAX integration for post object fields, ensuring grouped results by post type.
+- Improved error logging and code comments for maintainability.
+- Minor code and documentation cleanups.
+
 ### 1.5.2 (2025-06-09)
 - Improved Select2 integration for post object fields: results are now grouped by post type (optgroups) in Quick Edit, matching the main post edit page.
 - Fixed Select2 AJAX response structure to ensure compatibility with grouped results.

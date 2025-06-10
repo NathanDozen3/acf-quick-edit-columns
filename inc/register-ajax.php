@@ -60,68 +60,68 @@ add_action( 'wp_ajax_acf_quick_edit_get_field', __NAMESPACE__ . '\\ajax_get_fiel
  */
 function search_posts() : void {
 	$nonce = $_REQUEST['nonce'] ?? '';
-    error_log("ACF Quick Edit Columns: Post search nonce received: {$nonce}");
+	error_log("ACF Quick Edit Columns: Post search nonce received: {$nonce}");
 
-    if (!isset($_REQUEST['nonce']) || !wp_verify_nonce($nonce, 'acf_quick_edit_nonce')) {
-        error_log("ACF Quick Edit Columns: Nonce verification failed for post search, nonce: {$nonce}");
-        wp_send_json_error(['message' => 'Invalid nonce']);
-    }
+	if (!isset($_REQUEST['nonce']) || !wp_verify_nonce($nonce, 'acf_quick_edit_nonce')) {
+		error_log("ACF Quick Edit Columns: Nonce verification failed for post search, nonce: {$nonce}");
+		wp_send_json_error(['message' => 'Invalid nonce']);
+	}
 
-    $field_name = isset($_REQUEST['field_name']) ? sanitize_text_field($_REQUEST['field_name']) : '';
-    $search = isset($_REQUEST['s']) ? sanitize_text_field($_REQUEST['s']) : '';
+	$field_name = isset($_REQUEST['field_name']) ? sanitize_text_field($_REQUEST['field_name']) : '';
+	$search = isset($_REQUEST['s']) ? sanitize_text_field($_REQUEST['s']) : '';
 
-    if (!$field_name) {
-        error_log('ACF Quick Edit Columns: Missing field name for post search');
-        wp_send_json_error(['message' => 'Missing field name']);
-    }
+	if (!$field_name) {
+		error_log('ACF Quick Edit Columns: Missing field name for post search');
+		wp_send_json_error(['message' => 'Missing field name']);
+	}
 
-    $acf_field = acf_get_field($field_name);
-    if (!$acf_field || $acf_field['type'] !== 'post_object') {
-        error_log("ACF Quick Edit Columns: Invalid or non-post_object field {$field_name}");
-        wp_send_json_error(['message' => 'Invalid field']);
-    }
+	$acf_field = acf_get_field($field_name);
+	if (!$acf_field || $acf_field['type'] !== 'post_object') {
+		error_log("ACF Quick Edit Columns: Invalid or non-post_object field {$field_name}");
+		wp_send_json_error(['message' => 'Invalid field']);
+	}
 
-    $post_types = get_post_types( array( 'public' => true ) );
-    if ( ! in_array( 'attachment', $post_types, true ) ) {
-        $post_types[] = 'attachment';
-    }
-    $args = [
-        'post_type' => $post_types,
-        'post_status'    => array( 'publish', 'inherit' ),
-        'posts_per_page' => 20,
-        's' => $search,
-    ];
+	$post_types = get_post_types( array( 'public' => true ) );
+	if ( ! in_array( 'attachment', $post_types, true ) ) {
+		$post_types[] = 'attachment';
+	}
+	$args = [
+		'post_type' => $post_types,
+		'post_status'    => array( 'publish', 'inherit' ),
+		'posts_per_page' => 20,
+		's' => $search,
+	];
 
-    $query = new \WP_Query($args);
-    $results = [];
+	$query = new \WP_Query($args);
+	$results = [];
 
-    while ( $query->have_posts() ) {
-        $query->the_post();
-        $post_type = get_post_type();
-        $post_type_obj = get_post_type_object( $post_type );
-        $post_type_label = $post_type_obj ? $post_type_obj->labels->singular_name : ucfirst( $post_type );
+	while ( $query->have_posts() ) {
+		$query->the_post();
+		$post_type = get_post_type();
+		$post_type_obj = get_post_type_object( $post_type );
+		$post_type_label = $post_type_obj ? $post_type_obj->labels->singular_name : ucfirst( $post_type );
 
-        if ( ! isset( $results[ $post_type_label ] ) ) {
-            $results[ $post_type_label ] = array();
-        }
+		if ( ! isset( $results[ $post_type_label ] ) ) {
+			$results[ $post_type_label ] = array();
+		}
 
-        $results[ $post_type_label ][] = array(
-            'id'    => get_the_ID(),
-            'text'  => get_the_title() ?: '(no title)',
-        );
-    }
-    wp_reset_postdata();
+		$results[ $post_type_label ][] = array(
+			'id'    => get_the_ID(),
+			'text'  => get_the_title() ?: '(no title)',
+		);
+	}
+	wp_reset_postdata();
 
-    // Format for Select2 optgroups
-    $select2_results = array();
-    foreach ( $results as $label => $posts ) {
-        $select2_results[] = array(
-            'text'     => $label,
-            'children' => $posts,
-        );
-    }
+	// Format for Select2 optgroups
+	$select2_results = array();
+	foreach ( $results as $label => $posts ) {
+		$select2_results[] = array(
+			'text'     => $label,
+			'children' => $posts,
+		);
+	}
 
-    error_log("ACF Quick Edit Columns: Post search for field {$field_name}, results: " . print_r($select2_results, true));
-    wp_send_json_success(['results' => $select2_results]);
+	error_log("ACF Quick Edit Columns: Post search for field {$field_name}, results: " . print_r($select2_results, true));
+	wp_send_json_success(['results' => $select2_results]);
 }
 add_action('wp_ajax_acf_quick_edit_search_posts', __NAMESPACE__ . '\\search_posts');
