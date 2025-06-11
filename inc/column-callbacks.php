@@ -147,6 +147,12 @@ add_filter( 'acf_quick_edit_columns_time_picker', __NAMESPACE__ . '\time_output'
  * @return string The formatted output.
  */
 function password_output( $output, $post_id, $field_name, $field_type ) {
+	$value = get_field( $field_name, $post_id );
+	if ( is_string( $value ) && ! empty( $value ) ) {
+		// For security reasons, we do not display the actual password.
+		return str_repeat( '*', strlen( $value ) );
+	}
+	// If the field is empty or not a string, return a placeholder.
 	return '—';
 }
 add_filter( 'acf_quick_edit_columns_password', __NAMESPACE__ . '\password_output', 10, 4 );

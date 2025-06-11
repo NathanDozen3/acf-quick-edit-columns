@@ -106,6 +106,22 @@
 									$input.siblings('.acf-image-filename').text('');
 									$input.siblings('.acf-remove-image').hide();
 								}
+							} else if (fieldType === 'radio') {
+								// $input is a jQuery collection of radio inputs for this field
+								$input.each(function() {
+									if ($(this).val() == value) {
+										$(this).prop('checked', true);
+									} else {
+										$(this).prop('checked', false);
+									}
+								});
+							} else if (fieldType === 'true_false') {
+								// $input is the checkbox input for true_false
+								if (value === true || value === '1' || value === 1) {
+									$input.prop('checked', true);
+								} else {
+									$input.prop('checked', false);
+								}
 							} else {
 								$input.val(value || '');
 							}

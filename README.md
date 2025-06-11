@@ -1,6 +1,6 @@
 # ACF Quick Edit Columns
 
-[![WordPress Plugin Version](https://img.shields.io/badge/version-1.5.6-blue)](https://github.com/NathanDozen3/acf-quick-edit-columns)
+[![WordPress Plugin Version](https://img.shields.io/badge/version-1.5.7-blue)](https://github.com/NathanDozen3/acf-quick-edit-columns)
 [![License](https://img.shields.io/badge/license-GPL--2.0%2B-green)](https://www.gnu.org/licenses/gpl-2.0.html)
 [![WordPress Tested](https://img.shields.io/badge/WordPress-6.6%2B-blue)](https://wordpress.org)
 
@@ -127,6 +127,50 @@ Developed by [Twelve Three Media](https://www.digitalmarketingcompany.com/).
   - Test with a default theme (e.g., Twenty Twenty-Five) and only ACF active.
   - Ensure ACF is updated.
 
+## Core ACF Field Types Quick Edit Support Matrix
+
+The following table summarizes the Quick Edit support for each core ACF field type in this plugin. "Fully Supported" means the field type has a Quick Edit UI, JS prefill, column output, and save/sanitize logic. "Partially Supported" means the field type is only supported in the admin column (and saving), but does not have a Quick Edit UI (or, in the case of WYSIWYG, is rendered as a plain textarea, so advanced features are not available).
+
+| Field Type         | Quick Edit UI         | Prefill/JS | Column Output | Save/Sanitize | Notes                                                      | Support Level        |
+|--------------------|:--------------------:|:----------:|:-------------:|:-------------:|------------------------------------------------------------|---------------------|
+| text               | Yes                  | Yes        | Yes           | Yes           |                                                            | Fully Supported     |
+| textarea           | Yes                  | Yes        | Yes           | Yes           |                                                            | Fully Supported     |
+| wysiwyg            | Yes (as textarea)    | Yes        | Yes           | Yes           | Rendered as textarea, no rich editor in Quick Edit         | Partially Supported |
+| select             | Yes                  | Yes        | Yes           | Yes           | Supports single/multiple                                   | Fully Supported     |
+| checkbox           | Yes                  | Yes        | Yes           | Yes           | Supports multiple                                          | Fully Supported     |
+| radio              | Yes                  | Yes        | Yes           | Yes           |                                                            | Fully Supported     |
+| true_false         | Yes                  | Yes        | Yes           | Yes           |                                                            | Fully Supported     |
+| image              | Yes                  | Yes        | Yes           | Yes           | Media library, preview, remove                             | Fully Supported     |
+| number             | Yes                  | Yes        | Yes           | Yes           |                                                            | Fully Supported     |
+| email              | Yes                  | Yes        | Yes           | Yes           |                                                            | Fully Supported     |
+| url                | Yes                  | Yes        | Yes           | Yes           |                                                            | Fully Supported     |
+| password           | Yes                  | Yes        | Yes           | Yes           | Column output is masked                                    | Fully Supported     |
+| post_object        | Yes                  | Yes        | Yes           | Yes           | Select2 AJAX                                               | Fully Supported     |
+| file               | No                   | N/A        | Yes           | Yes           | No Quick Edit UI                                           | Partially Supported |
+| gallery            | No                   | N/A        | Yes           | Yes           | No Quick Edit UI                                           | Partially Supported |
+| date_picker        | No                   | N/A        | Yes           | Yes           | No Quick Edit UI                                           | Partially Supported |
+| datetime_picker    | No                   | N/A        | Yes           | Yes           | No Quick Edit UI                                           | Partially Supported |
+| time_picker        | No                   | N/A        | Yes           | Yes           | No Quick Edit UI                                           | Partially Supported |
+| oembed             | No                   | N/A        | Yes           | Yes           | No Quick Edit UI                                           | Partially Supported |
+| relationship       | No                   | N/A        | Yes           | Yes           | No Quick Edit UI                                           | Partially Supported |
+| page_link          | No                   | N/A        | Yes           | Yes           | No Quick Edit UI                                           | Partially Supported |
+| user               | No                   | N/A        | Yes           | Yes           | No Quick Edit UI                                           | Partially Supported |
+| taxonomy           | No                   | N/A        | Yes           | Yes           | No Quick Edit UI                                           | Partially Supported |
+| google_map         | No                   | N/A        | Yes           | Yes           | No Quick Edit UI                                           | Partially Supported |
+| color_picker       | No                   | N/A        | Yes           | Yes           | No Quick Edit UI                                           | Partially Supported |
+| repeater           | No                   | N/A        | Yes           | Yes           | No Quick Edit UI                                           | Partially Supported |
+| group              | No                   | N/A        | Yes           | Yes           | No Quick Edit UI                                           | Partially Supported |
+| clone              | No                   | N/A        | Yes           | Yes           | No Quick Edit UI                                           | Partially Supported |
+
+**Legend:**
+- **Quick Edit UI**: Field is rendered in the Quick Edit box.
+- **Prefill/JS**: Field is pre-populated with the current value via JavaScript.
+- **Column Output**: Field value is shown in the admin list table column.
+- **Save/Sanitize**: Field value is saved and sanitized when Quick Edit is used.
+- **Support Level**: "Fully Supported" = all features; "Partially Supported" = only column output/saving, or limited UI.
+
+If you want to add support for more field types, see the "Extending: Supporting Custom ACF Field Types" section below.
+
 ## Extending: Supporting Custom ACF Field Types
 
 ACF Quick Edit Columns is designed to be extensible. You can add support for your own custom ACF field types (or those provided by other plugins) in Quick Edit by using the provided WordPress hooks.
@@ -246,6 +290,12 @@ For issues, feature requests, or questions:
 - Contact [Twelve Three Media](https://www.digitalmarketingcompany.com/).
 
 ## Changelog
+
+### 1.5.7 (2025-06-11)
+- Added full Quick Edit support for the following ACF field types: password, url, email, radio, true_false, and number. These fields now have Quick Edit UI, JS prefill, column output, and save/sanitize logic.
+- Updated support matrix in README: WYSIWYG field is now marked as "Partially Supported" (rendered as textarea, not a rich editor).
+- Combined the full and partial support tables into a single, comprehensive table for all core ACF field types.
+- Improved documentation and legend for field type support.
 
 ### 1.5.6 (2025-06-11)
 - Added comprehensive file-level and function doc blocks to all major PHP files for improved maintainability and developer clarity.

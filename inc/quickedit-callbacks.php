@@ -121,3 +121,97 @@ function acf_quick_edit_field_post_object_output( $field, $field_label, $field_n
     <?php
 }
 add_action('acf_quick_edit_field_post_object', __NAMESPACE__ . '\acf_quick_edit_field_post_object_output', 10, 3);
+
+/**
+ * Output a password field for Quick Edit.
+ *
+ * @param array  $field      The ACF field array.
+ * @param string $field_label The field label.
+ * @param string $field_name  The field name (meta key).
+ */
+function acf_quick_edit_field_password_output( $field, $field_label, $field_name ) {
+    ?>
+    <input type="password" name="acf_<?php echo esc_attr($field_name); ?>" class="acf-quick-edit" value="">
+    <?php
+}
+add_action('acf_quick_edit_field_password', __NAMESPACE__ . '\acf_quick_edit_field_password_output', 10, 3);
+
+/**
+ * Output an email field for Quick Edit.
+ *
+ * @param array  $field      The ACF field array.
+ * @param string $field_label The field label.
+ * @param string $field_name  The field name (meta key).
+ */
+function acf_quick_edit_field_email_output( $field, $field_label, $field_name ) {
+    ?>
+    <input type="email" name="acf_<?php echo esc_attr($field_name); ?>" class="acf-quick-edit" value="">
+    <?php
+}
+add_action('acf_quick_edit_field_email', __NAMESPACE__ . '\acf_quick_edit_field_email_output', 10, 3);
+
+/**
+ * Output a URL field for Quick Edit.
+ *
+ * @param array  $field      The ACF field array.
+ * @param string $field_label The field label.
+ * @param string $field_name  The field name (meta key).
+ */
+function acf_quick_edit_field_url_output( $field, $field_label, $field_name ) {
+    ?>
+    <input type="url" name="acf_<?php echo esc_attr($field_name); ?>" class="acf-quick-edit" value="">
+    <?php
+}
+add_action('acf_quick_edit_field_url', __NAMESPACE__ . '\acf_quick_edit_field_url_output', 10, 3);
+
+/**
+ * Output a radio field for Quick Edit.
+ *
+ * @param array  $field      The ACF field array.
+ * @param string $field_label The field label.
+ * @param string $field_name  The field name (meta key).
+ */
+function acf_quick_edit_field_radio_output( $field, $field_label, $field_name ) {
+    if ( ! empty( $field['choices'] ) && is_array( $field['choices'] ) ) : ?>
+        <div class="acf-quick-edit-radios acf-radio-grid">
+            <?php foreach ( $field['choices'] as $value => $label ) : ?>
+                <label class="acf-radio">
+                    <input type="radio" name="acf_<?php echo esc_attr( $field_name ); ?>" value="<?php echo esc_attr( $value ); ?>" class="acf-quick-edit">
+                    <span class="acf-radio-label"><?php echo esc_html( $label ); ?></span>
+                </label>
+            <?php endforeach; ?>
+        </div>
+    <?php endif;
+}
+add_action('acf_quick_edit_field_radio', __NAMESPACE__ . '\acf_quick_edit_field_radio_output', 10, 3);
+
+/**
+ * Output a true/false field for Quick Edit.
+ *
+ * @param array  $field      The ACF field array.
+ * @param string $field_label The field label.
+ * @param string $field_name  The field name (meta key).
+ */
+function acf_quick_edit_field_true_false_output( $field, $field_label, $field_name ) {
+    ?>
+    <label class="acf-quick-edit-true-false">
+        <input type="checkbox" name="acf_<?php echo esc_attr( $field_name ); ?>" value="1" class="acf-quick-edit">
+        <span><?php echo esc_html( $field_label ); ?></span>
+    </label>
+    <?php
+}
+add_action('acf_quick_edit_field_true_false', __NAMESPACE__ . '\acf_quick_edit_field_true_false_output', 10, 3);
+
+/**
+ * Output a number field for Quick Edit.
+ *
+ * @param array  $field      The ACF field array.
+ * @param string $field_label The field label.
+ * @param string $field_name  The field name (meta key).
+ */
+function acf_quick_edit_field_number_output( $field, $field_label, $field_name ) {
+    ?>
+    <input type="number" name="acf_<?php echo esc_attr( $field_name ); ?>" class="acf-quick-edit" value="">
+    <?php
+}
+add_action('acf_quick_edit_field_number', __NAMESPACE__ . '\acf_quick_edit_field_number_output', 10, 3 );

@@ -247,27 +247,35 @@ add_action('quick_edit_custom_box', __NAMESPACE__ . '\\quick_edit_custom_box', 1
  */
 function get_core_quick_edit_field_types(): array {
 	return [
-		'text',
+        'text',
 		'textarea',
 		'wysiwyg',
 		'select',
 		'checkbox',
 		'radio',
-		'image',
-		'date_picker',
-		'datetime_picker',
-		'time_picker',
-		'file',
-		'gallery',
 		'true_false',
-		'relationship',
+		'image',
+		// 'file',
+		// 'gallery',
+		// 'date_picker',
+		// 'datetime_picker',
+		// 'time_picker',
+		'number',
+		'email',
+		'url',
+		// 'oembed',
+		'password',
 		'post_object',
-		'page_link',
-		'user',
-		'taxonomy',
-		'google_map',
-		'color_picker',
-	];
+		// 'relationship',
+		// 'page_link',
+		// 'user',
+		// 'taxonomy',
+		// 'google_map',
+		// 'color_picker',
+		// 'repeater',
+		// 'group',
+		// 'clone',
+    ];
 }
 
 /**
@@ -276,15 +284,12 @@ function get_core_quick_edit_field_types(): array {
  * @return array
  */
 function get_supported_quick_edit_field_types(): array {
-    $types = [
-        'text', 'textarea', 'wysiwyg', 'select', 'checkbox', 'radio', 'image', 'date_picker', 'datetime_picker', 'time_picker', 'file', 'gallery', 'true_false', 'relationship', 'post_object', 'page_link', 'user', 'taxonomy', 'google_map', 'color_picker', 'repeater', 'group', 'clone',
-    ];
-    /**
-     * Filter the supported ACF field types for Quick Edit.
-     *
+	/**
+	 * Allow extensions to add or modify the supported ACF field types for Quick Edit.
+	 *
      * @param array $types
      */
-    return apply_filters('acf_quick_edit_supported_field_types', $types);
+    return apply_filters('acf_quick_edit_supported_field_types', get_core_quick_edit_field_types());
 }
 
 /**
@@ -386,16 +391,22 @@ function sanitize_core_quick_edit_field_value($field_type, $value, $field) {
  * @since 1.0.0
  */
 function save_post( int $post_id, \WP_Post $post ): void {
+	error_log("Saving Quick Edit data for post ID {$post_id} of type {$post->post_type}");
+	error_log("Posted Data:" . print_r($_POST, true));
     $post_type = $post->post_type;
     $fields = get_acf_fields_by_post_type($post_type);
     try {
+		error_log("Saving Quick Edit data for post ID {$post_id} of type {$post_type}");
         if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
+			error_log("Skipping Quick Edit save due to autosave for post ID {$post_id}");
             return;
         }
         if (!current_user_can('edit_post', $post_id)) {
+			error_log("User does not have permission to edit post ID {$post_id}");
             return;
         }
         if (!isset($_POST['acf_quick_edit_nonce']) || !wp_verify_nonce($_POST['acf_quick_edit_nonce'], 'acf_quick_edit_nonce')) {
+			error_log("Nonce verification failed for post ID {$post_id}");
             return;
         }
 		$core_types = get_core_quick_edit_field_types();
@@ -410,10 +421,17 @@ function save_post( int $post_id, \WP_Post $post ): void {
             if (!in_array($field_type, $supported_types, true)) {
                 continue;
             }
-            if (!isset($_POST[$input_name])) {
-                continue;
-            }
-            $value = $_POST[$input_name];
+
+			$value = null;
+			if (array_key_exists($input_name, $_POST)) {
+				$value = $_POST[$input_name];
+			} elseif ($field_type === 'true_false') {
+				// Checkbox not present means unchecked
+				$value = 0;
+			} else {
+				continue;
+			}
+			error_log("Processing field '{$field_name}' with value: " . print_r($value, true));
             $acf_field = acf_get_field($field_name);
             if (!$acf_field) {
                 continue;
@@ -422,6 +440,7 @@ function save_post( int $post_id, \WP_Post $post ): void {
             if (in_array($field_type, $core_types, true)) {
                 $filtered_value = sanitize_core_quick_edit_field_value($field_type, $filtered_value, $acf_field);
             }
+			error_log("Saving field '{$field_name}' with value: " . print_r($filtered_value, true));
             update_field($field_name, $filtered_value, $post_id);
         }
         delete_transient('acf_quick_edit_columns_fields');
