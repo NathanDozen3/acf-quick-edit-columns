@@ -1,9 +1,9 @@
 <?php
 /**
- * ACF Quick Edit Columns - Field Value Formatter Class
+ * Field value formatting class for ACF Quick Edit Columns.
  *
- * Provides a class for formatting and retrieving ACF field values for use in Quick Edit columns.
- * Handles output for all supported ACF field types, with proper escaping and formatting.
+ * Provides methods to retrieve and format ACF field values for use in admin columns and AJAX Quick Edit prefill.
+ * Handles escaping, formatting, and special cases for all supported field types.
  *
  * @package   AcfQuickEditColumns
  * @author    Nathan Johnson
@@ -258,8 +258,8 @@ class FieldValueFormatter {
 	/**
 	 * Get value for wysiwyg field.
 	 *
-	 * For AJAX Quick Edit prefill, return the raw value (no escaping), so the textarea is not double-encoded.
-	 * For column output, escaping is handled elsewhere.
+	 * For AJAX Quick Edit prefill, returns the raw value (no escaping), so the textarea is not double-encoded.
+	 * For column output, escaping is handled in column-callbacks.php.
 	 *
 	 * @return string
 	 */
@@ -280,6 +280,8 @@ class FieldValueFormatter {
 
 	/**
 	 * Get the formatted value for the field type.
+	 *
+	 * Uses the method matching the field type, or falls back to default().
 	 *
 	 * @return mixed
 	 */

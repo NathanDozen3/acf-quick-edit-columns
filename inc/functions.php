@@ -1,21 +1,22 @@
 <?php
 /**
- * ACF Quick Edit Columns - Utility and Column Management Functions
+ * Utility and column management functions for ACF Quick Edit Columns.
  *
- * @package   acf-quick-edit-columns
+ * Handles ACF/SCF compatibility, CPT/field discovery, column registration, Quick Edit rendering, and save logic.
+ *
+ * @package   AcfQuickEditColumns
  * @author    Nathan Johnson
  * @copyright 2024 Nathan Johnson
  * @license   GPL-2.0-or-later
- * @link      https://github.com/nathan-johnson/acf-quick-edit-columns
  * @since     1.0.0
  */
 declare(strict_types=1);
 namespace AcfQuickEditColumns;
 
 /**
- * Check if ACF is active.
+ * Check if ACF (or SCF) is active and available for use.
  *
- * @return bool True if ACF is active, false otherwise.
+ * @return bool True if ACF or SCF is active, false otherwise.
  */
 function check_acf(): bool {
 	if (!function_exists('acf_get_field_groups') || !function_exists('acf_get_fields')) {
@@ -41,6 +42,7 @@ function get_sanitized_post_type() {
  * Get all custom post types and their ACF fields, excluding flexible content fields.
  *
  * @return array<string, array<string, array{label: string, field_name: string, type: string}>> Array of CPTs and their ACF fields.
+ * @see get_acf_fields_by_post_type()
  */
 function get_custom_post_types_and_acf_fields(): array {
 	if (!check_acf()) {
@@ -116,7 +118,7 @@ function get_acf_fields_by_post_type( string $post_type ): array {
 }
 
 /**
- * Add ACF fields as columns in the posts list table.
+ * Add ACF fields as columns in the posts list table for a given post type.
  *
  * @param array<string, string> $columns Existing columns.
  * @param string $post_type The post type slug.
@@ -143,6 +145,8 @@ add_filter('manage_posts_columns', __NAMESPACE__ . '\\manage_posts_columns', 10,
 
 /**
  * Output ACF field value for custom columns in posts/pages list table.
+ *
+ * Uses the appropriate output callback for each field type (see column-callbacks.php).
  *
  * @param string $column The column key.
  * @param int $post_id The post ID.
@@ -180,7 +184,7 @@ add_action('manage_pages_custom_column', __NAMESPACE__ . '\\manage_pages_custom_
 add_action('manage_posts_custom_column', __NAMESPACE__ . '\\manage_pages_custom_column', 10, 2);
 
 /**
- * Render the ACF fields in the Quick Edit box.
+ * Render the ACF fields in the Quick Edit box for the current column.
  *
  * @param string $column_name The column name.
  * @param string $screen_post_type The post type of the current screen.
@@ -299,6 +303,7 @@ function get_supported_quick_edit_field_types(): array {
  * @param array $field
  * @param int $post_id
  * @return string|null
+ * @see quickedit-callbacks.php for rendering callbacks
  */
 function render_quick_edit_field($field_type, $field, $post_id) {
     /**
@@ -383,7 +388,7 @@ function sanitize_core_quick_edit_field_value($field_type, $value, $field) {
 }
 
 /**
- * Save Quick Edit data for ACF fields.
+ * Save Quick Edit data for ACF fields, using array_key_exists to allow clearing values.
  *
  * @param int $post_id The post ID.
  * @param \WP_Post $post The post object.

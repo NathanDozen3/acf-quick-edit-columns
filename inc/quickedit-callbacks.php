@@ -1,11 +1,13 @@
 <?php
 /**
- * Quick Edit field output callbacks for ACF Quick Edit Columns.
+ * Quick Edit field rendering callbacks for ACF Quick Edit Columns.
  *
- * Each function renders the Quick Edit field for a specific ACF field type.
+ * Contains rendering logic for each supported ACF field type in the Quick Edit UI.
+ * Each function is registered to a filter of the form 'acf_quick_edit_render_field_{field_type}'.
  *
  * @package   AcfQuickEditColumns
- * @copyright Nathan Johnson
+ * @author    Nathan Johnson
+ * @copyright 2024 Nathan Johnson
  * @license   GPL-2.0-or-later
  * @since     2.0.0
  */
@@ -32,6 +34,8 @@ add_action('acf_quick_edit_field_textarea', __NAMESPACE__ . '\acf_quick_edit_fie
  * @param array  $field      The ACF field array.
  * @param string $field_label The field label.
  * @param string $field_name  The field name (meta key).
+ *
+ * Example: Render a text field in Quick Edit
  */
 function acf_quick_edit_field_text_output( $field, $field_label, $field_name ) {
     ?>
@@ -225,6 +229,8 @@ add_action('acf_quick_edit_field_number', __NAMESPACE__ . '\acf_quick_edit_field
  * @param array  $field      The ACF field array.
  * @param string $field_label The field label.
  * @param string $field_name  The field name (meta key).
+ *
+ * Example: Render a wysiwyg field as a textarea (no TinyMCE in Quick Edit)
  */
 function acf_quick_edit_field_wysiwyg_output( $field, $field_label, $field_name ) {
     // WYSIWYG fields cannot load TinyMCE in Quick Edit. Render as textarea only.

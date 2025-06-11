@@ -1,9 +1,10 @@
 <?php
 /**
- * ACF Quick Edit Columns - Column Output Callbacks
+ * Output formatting callbacks for ACF Quick Edit Columns admin columns.
  *
- * This file contains output formatting callbacks for each supported ACF field type in the posts list table columns.
  * Each function is registered to a filter of the form 'acf_quick_edit_columns_{field_type}'.
+ * Handles escaping, formatting, and special cases for all supported field types.
+ * See also: FieldValueFormatter for AJAX prefill logic.
  *
  * @package   AcfQuickEditColumns
  * @author    Nathan Johnson
@@ -26,6 +27,15 @@ use function is_array;
 use function implode;
 
 /**
+ * Get a consistent, translatable placeholder for empty/unsupported values.
+ *
+ * @return string
+ */
+function acf_qec_placeholder(): string {
+    return esc_html__('—', 'acf-quick-edit-columns');
+}
+
+/**
  * Output for text fields.
  *
  * @param string $output     The default output.
@@ -33,14 +43,15 @@ use function implode;
  * @param string $field_name The field name.
  * @param string $field_type The field type.
  * @return string The formatted output.
+ *
+ * Example: Output for text/email/textarea fields is plain text, escaped for HTML.
  */
 function text_output( $output, $post_id, $field_name, $field_type ) {
 	$value = get_field( $field_name, $post_id );
-	return esc_html( $value ? $value : '—' );
+	return esc_html( $value ? $value : acf_qec_placeholder() );
 }
 add_filter( 'acf_quick_edit_columns_text', __NAMESPACE__ . '\text_output', 10, 4 );
 add_filter( 'acf_quick_edit_columns_textarea', __NAMESPACE__ . '\text_output', 10, 4 );
-add_filter( 'acf_quick_edit_columns_wysiwyg', __NAMESPACE__ . '\text_output', 10, 4 );
 add_filter( 'acf_quick_edit_columns_email', __NAMESPACE__ . '\text_output', 10, 4 );
 add_filter( 'acf_quick_edit_columns_url', __NAMESPACE__ . '\text_output', 10, 4 );
 add_filter( 'acf_quick_edit_columns_oembed', __NAMESPACE__ . '\text_output', 10, 4 );
@@ -56,11 +67,12 @@ add_filter( 'acf_quick_edit_columns_number', __NAMESPACE__ . '\text_output', 10,
  * @return string The formatted output.
  */
 function array_output( $output, $post_id, $field_name, $field_type ) {
-	$value = get_field( $field_name, $post_id );
-	if ( is_array( $value ) ) {
-		return esc_html( implode( ', ', array_map( 'strval', $value ) ) ? implode( ', ', array_map( 'strval', $value ) ) : '—' );
-	}
-	return esc_html( $value ? $value : '—' );
+    $value = get_field( $field_name, $post_id );
+    if ( is_array( $value ) ) {
+        $joined = implode( ', ', array_map( 'strval', $value ) );
+        return esc_html( $joined ? $joined : acf_qec_placeholder() );
+    }
+    return esc_html( $value ? $value : acf_qec_placeholder() );
 }
 add_filter( 'acf_quick_edit_columns_select', __NAMESPACE__ . '\array_output', 10, 4 );
 add_filter( 'acf_quick_edit_columns_checkbox', __NAMESPACE__ . '\array_output', 10, 4 );
@@ -75,11 +87,11 @@ add_filter( 'acf_quick_edit_columns_checkbox', __NAMESPACE__ . '\array_output', 
  * @return string The formatted output.
  */
 function image_output( $output, $post_id, $field_name, $field_type ) {
-	$value = get_field( $field_name, $post_id );
-	if ( is_array( $value ) && ! empty( $value['url'] ) ) {
-		return '<img src="' . esc_url( $value['url'] ) . '" style="max-width: 50px; height: auto;" alt="' . esc_attr( ! empty( $value['title'] ) ? $value['title'] : 'Image' ) . '" data-image-id="' . esc_attr( $value['ID'] ) . '">';
-	}
-	return '—';
+    $value = get_field( $field_name, $post_id );
+    if ( is_array( $value ) && ! empty( $value['url'] ) ) {
+        return '<img src="' . esc_url( $value['url'] ) . '" style="max-width: 50px; height: auto;" alt="' . esc_attr( ! empty( $value['title'] ) ? $value['title'] : 'Image' ) . '" data-image-id="' . esc_attr( $value['ID'] ) . '">';
+    }
+    return acf_qec_placeholder();
 }
 add_filter( 'acf_quick_edit_columns_image', __NAMESPACE__ . '\image_output', 10, 4 );
 
@@ -97,7 +109,7 @@ function date_output( $output, $post_id, $field_name, $field_type ) {
 	if ( $value ) {
 		return esc_html( date_i18n( get_option( 'date_format' ), strtotime( $value ) ) );
 	}
-	return '—';
+	return acf_qec_placeholder();
 }
 add_filter( 'acf_quick_edit_columns_date_picker', __NAMESPACE__ . '\date_output', 10, 4 );
 
@@ -115,7 +127,7 @@ function datetime_output( $output, $post_id, $field_name, $field_type ) {
 	if ( $value ) {
 		return esc_html( date_i18n( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), strtotime( $value ) ) );
 	}
-	return '—';
+	return acf_qec_placeholder();
 }
 add_filter( 'acf_quick_edit_columns_datetime_picker', __NAMESPACE__ . '\datetime_output', 10, 4 );
 
@@ -133,7 +145,7 @@ function time_output( $output, $post_id, $field_name, $field_type ) {
 	if ( $value ) {
 		return esc_html( date_i18n( get_option( 'time_format' ), strtotime( $value ) ) );
 	}
-	return '—';
+	return acf_qec_placeholder();
 }
 add_filter( 'acf_quick_edit_columns_time_picker', __NAMESPACE__ . '\time_output', 10, 4 );
 
@@ -145,6 +157,8 @@ add_filter( 'acf_quick_edit_columns_time_picker', __NAMESPACE__ . '\time_output'
  * @param string $field_name The field name.
  * @param string $field_type The field type.
  * @return string The formatted output.
+ *
+ * Example: Output for password fields is masked with asterisks for security.
  */
 function password_output( $output, $post_id, $field_name, $field_type ) {
 	$value = get_field( $field_name, $post_id );
@@ -153,7 +167,7 @@ function password_output( $output, $post_id, $field_name, $field_type ) {
 		return str_repeat( '*', strlen( $value ) );
 	}
 	// If the field is empty or not a string, return a placeholder.
-	return '—';
+	return acf_qec_placeholder();
 }
 add_filter( 'acf_quick_edit_columns_password', __NAMESPACE__ . '\password_output', 10, 4 );
 
@@ -171,7 +185,7 @@ function file_output( $output, $post_id, $field_name, $field_type ) {
 	if ( is_array( $value ) && ! empty( $value['url'] ) ) {
 		return '<a href="' . esc_url( $value['url'] ) . '" target="_blank">' . esc_html( ! empty( $value['filename'] ) ? $value['filename'] : 'File' ) . '</a>';
 	}
-	return '—';
+	return acf_qec_placeholder();
 }
 add_filter( 'acf_quick_edit_columns_file', __NAMESPACE__ . '\file_output', 10, 4 );
 
@@ -196,10 +210,10 @@ function gallery_output( $output, $post_id, $field_name, $field_type ) {
 			);
 			return implode( ' ', $images );
 		} else {
-			return esc_html( implode( ', ', array_map( 'strval', $value ) ) ? implode( ', ', array_map( 'strval', $value ) ) : '—' );
+			return esc_html( implode( ', ', array_map( 'strval', $value ) ) ? implode( ', ', array_map( 'strval', $value ) ) : acf_qec_placeholder() );
 		}
 	}
-	return '—';
+	return acf_qec_placeholder();
 }
 add_filter( 'acf_quick_edit_columns_gallery', __NAMESPACE__ . '\gallery_output', 10, 4 );
 
@@ -236,9 +250,9 @@ function relationship_output( $output, $post_id, $field_name, $field_type ) {
 			},
 			$value
 		);
-		return esc_html( implode( ', ', $titles ) ? implode( ', ', $titles ) : '—' );
+		return esc_html( implode( ', ', $titles ) ? implode( ', ', $titles ) : acf_qec_placeholder() );
 	}
-	return '—';
+	return acf_qec_placeholder();
 }
 add_filter( 'acf_quick_edit_columns_relationship', __NAMESPACE__ . '\relationship_output', 10, 4 );
 
@@ -254,9 +268,9 @@ add_filter( 'acf_quick_edit_columns_relationship', __NAMESPACE__ . '\relationshi
 function post_object_output( $output, $post_id, $field_name, $field_type ) {
 	$value = get_field( $field_name, $post_id );
 	if ( $value ) {
-		return esc_html( get_the_title( $value ) ? get_the_title( $value ) : '—' );
+		return esc_html( get_the_title( $value ) ? get_the_title( $value ) : acf_qec_placeholder() );
 	}
-	return '—';
+	return acf_qec_placeholder();
 }
 add_filter( 'acf_quick_edit_columns_post_object', __NAMESPACE__ . '\post_object_output', 10, 4 );
 
@@ -274,7 +288,7 @@ function page_link_output( $output, $post_id, $field_name, $field_type ) {
 	if ( $value ) {
 		return '<a href="' . esc_url( $value ) . '" target="_blank">' . esc_html( $value ) . '</a>';
 	}
-	return '—';
+	return acf_qec_placeholder();
 }
 add_filter( 'acf_quick_edit_columns_page_link', __NAMESPACE__ . '\page_link_output', 10, 4 );
 
@@ -292,7 +306,7 @@ function user_output( $output, $post_id, $field_name, $field_type ) {
 	if ( is_array( $value ) && ! empty( $value['user_nicename'] ) ) {
 		return esc_html( $value['user_nicename'] );
 	}
-	return '—';
+	return acf_qec_placeholder();
 }
 add_filter( 'acf_quick_edit_columns_user', __NAMESPACE__ . '\user_output', 10, 4 );
 
@@ -314,9 +328,9 @@ function taxonomy_output( $output, $post_id, $field_name, $field_type ) {
 			},
 			$value
 		);
-		return esc_html( implode( ', ', $terms ) ? implode( ', ', $terms ) : '—' );
+		return esc_html( implode( ', ', $terms ) ? implode( ', ', $terms ) : acf_qec_placeholder() );
 	}
-	return '—';
+	return acf_qec_placeholder();
 }
 add_filter( 'acf_quick_edit_columns_taxonomy', __NAMESPACE__ . '\taxonomy_output', 10, 4 );
 
@@ -334,7 +348,7 @@ function google_map_output( $output, $post_id, $field_name, $field_type ) {
 	if ( is_array( $value ) && ! empty( $value['address'] ) ) {
 		return esc_html( $value['address'] );
 	}
-	return '—';
+	return acf_qec_placeholder();
 }
 add_filter( 'acf_quick_edit_columns_google_map', __NAMESPACE__ . '\google_map_output', 10, 4 );
 
@@ -352,7 +366,7 @@ function color_picker_output( $output, $post_id, $field_name, $field_type ) {
 	if ( $value ) {
 		return '<span style="background-color:' . esc_attr( $value ) . '; width: 20px; height: 20px; display: inline-block;"></span> ' . esc_html( $value );
 	}
-	return '—';
+	return acf_qec_placeholder();
 }
 add_filter( 'acf_quick_edit_columns_color_picker', __NAMESPACE__ . '\color_picker_output', 10, 4 );
 
@@ -370,7 +384,7 @@ function repeater_output( $output, $post_id, $field_name, $field_type ) {
 	if ( is_array( $value ) ) {
 		return esc_html( count( $value ) . ' rows' );
 	}
-	return '—';
+	return acf_qec_placeholder();
 }
 add_filter( 'acf_quick_edit_columns_repeater', __NAMESPACE__ . '\repeater_output', 10, 4 );
 
@@ -388,7 +402,7 @@ function group_output( $output, $post_id, $field_name, $field_type ) {
 	if ( is_array( $value ) ) {
 		return esc_html__( 'Group data', 'acf' );
 	}
-	return '—';
+	return acf_qec_placeholder();
 }
 add_filter( 'acf_quick_edit_columns_group', __NAMESPACE__ . '\group_output', 10, 4 );
 
@@ -402,6 +416,26 @@ add_filter( 'acf_quick_edit_columns_group', __NAMESPACE__ . '\group_output', 10,
  * @return string The formatted output.
  */
 function clone_output( $output, $post_id, $field_name, $field_type ) {
-	return '—';
+	return acf_qec_placeholder();
 }
 add_filter( 'acf_quick_edit_columns_clone', __NAMESPACE__ . '\clone_output', 10, 4 );
+
+/**
+ * Output for wysiwyg fields (render safe HTML in admin columns).
+ *
+ * For column output, render formatted HTML. For AJAX prefill, raw value is returned by FieldValueFormatter.
+ *
+ * @param string $output     The default output.
+ * @param int    $post_id    The post ID.
+ * @param string $field_name The field name.
+ * @param string $field_type The field type.
+ * @return string The formatted output.
+ *
+ * Example: Output for wysiwyg fields is safe HTML (wp_kses_post).
+ */
+function wysiwyg_output( $output, $post_id, $field_name, $field_type ) {
+	// For admin column, render safe HTML. For AJAX prefill, see FieldValueFormatter::wysiwyg().
+	$value = get_field( $field_name, $post_id );
+	return $value ? wp_kses_post( $value ) : acf_qec_placeholder();
+}
+add_filter( 'acf_quick_edit_columns_wysiwyg', __NAMESPACE__ . '\wysiwyg_output', 10, 4 );

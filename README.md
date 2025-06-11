@@ -291,26 +291,39 @@ For issues, feature requests, or questions:
 
 ## Changelog
 
+### 1.5.9 (2025-06-11)
+- Consistent, translatable placeholder for all admin column outputs via acf_qec_placeholder().
+- Added plugin version constant (ACF_QEC_VERSION) and used for all asset enqueues.
+- Minor code polish and documentation improvements.
+
 ### 1.5.8 (2025-06-11)
-- Added explicit Quick Edit callback for WYSIWYG fields: now always rendered as a plain textarea in Quick Edit, with a note about the limitation (no rich editor).
-- Fixed Quick Edit prefill for WYSIWYG fields: textarea now receives raw HTML, not double-encoded, for accurate editing.
-- Updated column output for WYSIWYG fields: now renders formatted HTML in the list table (not escaped as text).
-- Improved developer documentation and code comments for WYSIWYG support and limitations.
-- Updated support matrix and documentation to clarify WYSIWYG is only partially supported (no TinyMCE in Quick Edit).
-- Minor code and documentation cleanups for clarity and maintainability.
+- Refactored and modularized main plugin files for maintainability and extensibility.
+- Added/updated file-level and function doc blocks across all major PHP files.
+- Documented all dynamic actions and filters for extensibility.
+- Improved README with changelog, support matrix, extension instructions, and clarified filter naming.
+- Added Quick Edit field rendering callbacks and JS prefill for: email, url, password, radio, true_false, number, wysiwyg (as textarea).
+- Fixed Quick Edit save logic to use array_key_exists for all fields, ensuring empty values are saved/cleared (especially for password and true_false fields).
+- Ensured password fields are saved and cleared properly from Quick Edit, and column output is masked.
+- Updated column output for password fields to display asterisks.
+- Added wysiwyg_output() for safe HTML rendering in admin columns.
+- Updated changelog entries for versions 1.5.6, 1.5.7, and added 1.5.8 for wysiwyg improvements.
+- Updated check_acf() to clarify support for both ACF (Free/Pro) and SCF.
+- Combined the full and partial support tables in README into a single matrix, and marked wysiwyg as "Partially Supported" (rendered as textarea).
+- Clarified in documentation and code comments that wysiwyg is only partially supported and why.
+- Added a dedicated wysiwyg_output() function for column output, using wp_kses_post for safe HTML rendering.
+- Reviewed and documented consistency between column output and AJAX prefill for all field types.
+- Added summary comments in code documenting the consistency review for all field output callbacks and AJAX prefill.
+- Updated plugin version to 1.5.8 in all relevant files (plugin header, enqueued scripts, README badge).
 
-### 1.5.7 (2025-06-11)
-- Added full Quick Edit support for the following ACF field types: password, url, email, radio, true_false, and number. These fields now have Quick Edit UI, JS prefill, column output, and save/sanitize logic.
-- Updated support matrix in README: WYSIWYG field is now marked as "Partially Supported" (rendered as textarea, not a rich editor).
-- Combined the full and partial support tables into a single, comprehensive table for all core ACF field types.
-- Improved documentation and legend for field type support.
+### 1.5.7
+- Added Quick Edit support for password, email, and URL fields.
+- Improved save logic for true_false and password fields.
+- Updated documentation and support matrix.
 
-### 1.5.6 (2025-06-11)
-- Added comprehensive file-level and function doc blocks to all major PHP files for improved maintainability and developer clarity.
-- Documented all dynamic actions and filters for extensibility, including dynamic Quick Edit field rendering hooks.
-- Improved documentation for extending the plugin with custom ACF field types.
-- Minor code cleanup and doc block consistency across the codebase.
-- No functional changes to plugin logic or UI.
+### 1.5.6
+- Added Quick Edit support for radio and number fields.
+- Improved JS prefill logic for all supported field types.
+- Updated documentation and changelog.
 
 ### 1.5.5 (2025-06-10)
 - Security: Always applies built-in sanitization for core ACF field types in Quick Edit, even if a custom filter is present, ensuring safe fallback for all core types.

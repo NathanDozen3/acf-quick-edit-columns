@@ -1,9 +1,21 @@
 <?php
 /**
+ * Main plugin file for ACF Quick Edit Columns.
+ *
+ * Loads all core modules, sets up admin hooks, and initializes plugin features.
+ *
+ * @package   AcfQuickEditColumns
+ * @author    Nathan Johnson
+ * @copyright 2024 Nathan Johnson
+ * @license   GPL-2.0-or-later
+ * @since     1.0.0
+ */
+
+/**
  * Plugin Name: ACF Quick Edit Columns
  * Plugin URI: https://github.com/NathanDozen3/acf-quick-edit-columns
  * Description: Adds ACF fields as columns and Quick Edit fields for custom post types in the WordPress admin, with pre-populated values.
- * Version: 1.5.8
+ * Version: 1.5.9
  * Author: Twelve Three Media
  * Author URI: https://www.digitalmarketingcompany.com/
  * License: GPL-2.0+
@@ -16,14 +28,21 @@ namespace AcfQuickEditColumns;
 
 // Exit if accessed directly
 if (!defined('ABSPATH')) {
+	// Prevent direct access for security.
 	exit;
 }
 
-require __DIR__ . '/inc/class-fieldvalueformatter.php';
-require __DIR__ . '/inc/column-callbacks.php';
-require __DIR__ . '/inc/functions.php';
-require __DIR__ . '/inc/quickedit-callbacks.php';
-require __DIR__ . '/inc/register-ajax.php';
+// Define plugin version constant for easy reference
+if (!defined('ACF_QEC_VERSION')) {
+    define('ACF_QEC_VERSION', '1.5.9');
+}
+
+// Load core plugin modules
+require __DIR__ . '/inc/class-fieldvalueformatter.php'; // Field value formatting for columns and AJAX
+require __DIR__ . '/inc/column-callbacks.php';          // Output callbacks for admin columns
+require __DIR__ . '/inc/functions.php';                 // Utility and column management functions
+require __DIR__ . '/inc/quickedit-callbacks.php';       // Quick Edit field rendering callbacks
+require __DIR__ . '/inc/register-ajax.php';             // AJAX handlers for Quick Edit prefill
 
 /**
  * Add a filter to make ACF fields sortable in the admin edit screen for all custom post types.
@@ -64,7 +83,7 @@ function load_textdomain(): void {
 add_action('plugins_loaded', __NAMESPACE__ . '\\load_textdomain');
 
 /**
- * Enqueue scripts and styles for the admin area.
+ * Enqueue admin scripts and styles for Quick Edit UI and ACF field support.
  *
  * @since 1.0.0
  */
@@ -78,7 +97,7 @@ function enqueue_scripts( string $hook ): void {
 		'acf-quick-edit',
 		plugin_dir_url(__FILE__) . 'assets/acf-quick-edit.css',
 		[],
-		'1.5.8'
+		ACF_QEC_VERSION
 	);
 	
 	wp_enqueue_style('select2', 'https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css', [], '4.1.0-rc.0');
@@ -88,7 +107,7 @@ function enqueue_scripts( string $hook ): void {
 		'acf-quick-edit',
 		plugin_dir_url(__FILE__) . 'assets/acf-quick-edit.js',
 		['jquery', 'inline-edit-post', 'media-editor', 'select2'],
-		'1.5.8',
+		ACF_QEC_VERSION,
 		true
 	);
 
