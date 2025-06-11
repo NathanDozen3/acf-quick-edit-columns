@@ -1,4 +1,17 @@
 <?php
+/**
+ * ACF Quick Edit Columns - Field Value Formatter Class
+ *
+ * Provides a class for formatting and retrieving ACF field values for use in Quick Edit columns.
+ * Handles output for all supported ACF field types, with proper escaping and formatting.
+ *
+ * @package   AcfQuickEditColumns
+ * @author    Nathan Johnson
+ * @copyright 2024 Nathan Johnson
+ * @license   GPL-2.0-or-later
+ * @since     2.0.0
+ */
+
 declare(strict_types=1);
 
 namespace AcfQuickEditColumns;

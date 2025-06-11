@@ -1,4 +1,17 @@
 <?php
+/**
+ * ACF Quick Edit Columns - Column Output Callbacks
+ *
+ * This file contains output formatting callbacks for each supported ACF field type in the posts list table columns.
+ * Each function is registered to a filter of the form 'acf_quick_edit_columns_{field_type}'.
+ *
+ * @package   AcfQuickEditColumns
+ * @author    Nathan Johnson
+ * @copyright 2024 Nathan Johnson
+ * @license   GPL-2.0-or-later
+ * @since     2.0.0
+ */
+
 declare(strict_types=1);
 
 namespace AcfQuickEditColumns;

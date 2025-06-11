@@ -22,6 +22,7 @@ if (!defined('ABSPATH')) {
 require __DIR__ . '/inc/class-fieldvalueformatter.php';
 require __DIR__ . '/inc/column-callbacks.php';
 require __DIR__ . '/inc/functions.php';
+require __DIR__ . '/inc/quickedit-callbacks.php';
 require __DIR__ . '/inc/register-ajax.php';
 
 /**

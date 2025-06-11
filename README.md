@@ -1,6 +1,6 @@
 # ACF Quick Edit Columns
 
-[![WordPress Plugin Version](https://img.shields.io/badge/version-1.5.5-blue)](https://github.com/NathanDozen3/acf-quick-edit-columns)
+[![WordPress Plugin Version](https://img.shields.io/badge/version-1.5.6-blue)](https://github.com/NathanDozen3/acf-quick-edit-columns)
 [![License](https://img.shields.io/badge/license-GPL--2.0%2B-green)](https://www.gnu.org/licenses/gpl-2.0.html)
 [![WordPress Tested](https://img.shields.io/badge/WordPress-6.6%2B-blue)](https://wordpress.org)
 
@@ -127,6 +127,102 @@ Developed by [Twelve Three Media](https://www.digitalmarketingcompany.com/).
   - Test with a default theme (e.g., Twenty Twenty-Five) and only ACF active.
   - Ensure ACF is updated.
 
+## Extending: Supporting Custom ACF Field Types
+
+ACF Quick Edit Columns is designed to be extensible. You can add support for your own custom ACF field types (or those provided by other plugins) in Quick Edit by using the provided WordPress hooks.
+
+### 1. Register Your Field Type for Quick Edit
+
+Add your field type to the list of supported types:
+
+```php
+add_filter('acf_quick_edit_supported_field_types', function($types) {
+    $types[] = 'my_custom_type'; // Replace with your field type key
+    return $types;
+});
+```
+
+### 2. Render Your Field in Quick Edit
+
+Provide the HTML for your field in the Quick Edit box:
+
+```php
+add_filter('acf_quick_edit_render_field_my_custom_type', function($output, $field, $post_id) {
+    // Example: Render a text input for your custom field
+    $value = get_field($field['name'], $post_id);
+    return '<input type="text" name="acf_' . esc_attr($field['name']) . '" value="' . esc_attr($value) . '" />';
+}, 10, 3);
+```
+
+### 3. Sanitize Your Field Value on Save
+
+Sanitize the value before it is saved:
+
+```php
+add_filter('acf_quick_edit_sanitize_field_my_custom_type', function($value, $field, $post_id) {
+    // Example: Basic text sanitization
+    return sanitize_text_field($value);
+}, 10, 3);
+```
+
+### 4. (Optional) Display Your Field in the Admin Column
+
+To customize how your field appears in the admin column, use:
+
+```php
+add_filter('acf_quick_edit_columns_my_custom_type', function($output, $post_id, $field_name, $field_type) {
+    $value = get_field($field_name, $post_id);
+    // Format and return your display value
+    return esc_html($value);
+}, 10, 4);
+```
+
+### Understanding the Filter Names for Custom Field Types
+
+The filter names shown above use a placeholder (e.g., `my_custom_type`) to represent your custom ACF field type's key. This key is the value you use when registering your custom field type in ACF. The plugin uses dynamic filter names based on the field type, so you must replace `my_custom_type` with your actual field type key.
+
+**For example:**
+
+If your custom field type is `star_rating`, you would use:
+
+- `acf_quick_edit_supported_field_types` to add `'star_rating'` to the supported types array.
+- `acf_quick_edit_render_field_star_rating` to render the field in Quick Edit.
+- `acf_quick_edit_sanitize_field_star_rating` to sanitize the value on save.
+- `acf_quick_edit_columns_star_rating` to customize the admin column display.
+
+**Example code:**
+
+```php
+add_filter('acf_quick_edit_supported_field_types', function($types) {
+    $types[] = 'star_rating';
+    return $types;
+});
+
+add_filter('acf_quick_edit_render_field_star_rating', function($output, $field, $post_id) {
+    $value = get_field($field['name'], $post_id);
+    return '<input type="number" min="1" max="5" name="acf_' . esc_attr($field['name']) . '" value="' . esc_attr($value) . '" />';
+}, 10, 3);
+
+add_filter('acf_quick_edit_sanitize_field_star_rating', function($value, $field, $post_id) {
+    return intval($value);
+}, 10, 3);
+
+add_filter('acf_quick_edit_columns_star_rating', function($output, $post_id, $field_name, $field_type) {
+    $value = get_field($field_name, $post_id);
+    return esc_html($value) . ' stars';
+}, 10, 4);
+```
+
+**Summary:**
+Replace `my_custom_type` in the filter name with your actual field type key (e.g., `star_rating`). This tells the plugin which field type your filter applies to.
+
+---
+
+**That’s it!**  
+Your custom field type will now be available in Quick Edit, will be sanitized on save, and can be displayed in the admin columns.
+
+For more advanced use, see the plugin’s source code and the [WordPress Plugin Developer Handbook](https://developer.wordpress.org/plugins/).
+
 ## Contributing
 
 Contributions are welcome! To contribute:
@@ -150,6 +246,13 @@ For issues, feature requests, or questions:
 - Contact [Twelve Three Media](https://www.digitalmarketingcompany.com/).
 
 ## Changelog
+
+### 1.5.6 (2025-06-11)
+- Added comprehensive file-level and function doc blocks to all major PHP files for improved maintainability and developer clarity.
+- Documented all dynamic actions and filters for extensibility, including dynamic Quick Edit field rendering hooks.
+- Improved documentation for extending the plugin with custom ACF field types.
+- Minor code cleanup and doc block consistency across the codebase.
+- No functional changes to plugin logic or UI.
 
 ### 1.5.5 (2025-06-10)
 - Security: Always applies built-in sanitization for core ACF field types in Quick Edit, even if a custom filter is present, ensuring safe fallback for all core types.

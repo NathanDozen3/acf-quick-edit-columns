@@ -217,45 +217,21 @@ function quick_edit_custom_box(string $column_name, string $screen_post_type): v
 		<div class="inline-edit-col">
 			<label>
 				<span class="title"><?php echo esc_html($field_label); ?></span>
-				<?php if (in_array($field_type, ['textarea', 'wysiwyg'], true)) : ?>
-					<textarea name="acf_<?php echo esc_attr($field_name); ?>" class="acf-quick-edit"></textarea>
-				<?php elseif ($field_type === 'select') : ?>
-					<select name="acf_<?php echo esc_attr($field_name); ?><?php echo !empty($field['multiple']) ? '[]' : ''; ?>" class="acf-quick-edit" <?php echo !empty($field['multiple']) ? 'multiple' : ''; ?>>
-						<?php if (empty($field['multiple'])) : ?>
-							<option value=""><?php esc_html_e('None', 'acf-quick-edit-columns'); ?></option>
-						<?php endif; ?>
-						<?php if (!empty($field['choices']) && is_array($field['choices'])) : foreach ($field['choices'] as $value => $label) : ?>
-							<option value="<?php echo esc_attr($value); ?>"><?php echo esc_html($label); ?></option>
-						<?php endforeach; endif; ?>
-					</select>
-				<?php elseif ($field_type === 'checkbox') : ?>
-					<div class="acf-quick-edit-checkboxes acf-checkbox-grid">
-						<?php if (!empty($field['choices']) && is_array($field['choices'])) : foreach ($field['choices'] as $value => $label) : ?>
-							<label class="acf-checkbox">
-								<input type="checkbox" name="acf_<?php echo esc_attr($field_name); ?>[]" value="<?php echo esc_attr($value); ?>" class="acf-quick-edit">
-								<span class="acf-checkbox-label"><?php echo esc_html($label); ?></span>
-							</label>
-						<?php endforeach; endif; ?>
-					</div>
-				<?php elseif ($field_type === 'image') : ?>
-					<div class="acf-quick-edit-image" data-field="<?php echo esc_attr($field_name); ?>">
-						<div class="acf-image-preview" style="margin-bottom: 10px;">
-							<img src="" alt="" style="max-width: 100px; height: auto; display: none;">
-						</div>
-						<p class="acf-image-filename" style="margin: 0 0 10px; font-size: 12px;"></p>
-						<input type="hidden" name="acf_<?php echo esc_attr($field_name); ?>" class="acf-quick-edit acf-image-id" value="">
-						<button type="button" class="button acf-select-image"><?php esc_html_e('Select Image', 'acf-quick-edit-columns'); ?></button>
-						<button type="button" class="button acf-remove-image" style="display: none;"><?php esc_html_e('Remove', 'acf-quick-edit-columns'); ?></button>
-					</div>
-				<?php elseif ($field_type === 'post_object') : ?>
-					<select name="acf_<?php echo esc_attr($field_name); ?><?php echo !empty($field['multiple']) ? '[]' : ''; ?>"
-							class="acf-quick-edit-query acf-post-object"
-							<?php echo !empty($field['multiple']) ? 'multiple' : ''; ?>>
-						<option value=""><?php esc_html_e('Select', 'acf-quick-edit-columns'); ?></option>
-					</select>
-				<?php else : ?>
-					<input type="text" name="acf_<?php echo esc_attr($field_name); ?>" class="acf-quick-edit" value="">
-				<?php endif; ?>
+				<?php
+				/**
+				 * Fires to render the Quick Edit field for a specific ACF field type.
+				 *
+				 * Dynamic action: "acf_quick_edit_field_{$field_type}"
+				 *
+				 * @param array  $field       The ACF field array.
+				 * @param string $field_label The field label.
+				 * @param string $field_name  The field name (meta key).
+				 *
+				 * Example usage for custom field type:
+				 *   add_action('acf_quick_edit_field_my_custom_type', function($field, $field_label, $field_name) { ... }, 10, 3);
+				 */
+				do_action("acf_quick_edit_field_{$field_type}", $field, $field_label, $field_name);
+				?>
 			</label>
 			<input type="hidden" name="acf_quick_edit_nonce" value="<?php echo esc_attr(wp_create_nonce('acf_quick_edit_nonce')); ?>">
 		</div>
@@ -263,6 +239,36 @@ function quick_edit_custom_box(string $column_name, string $screen_post_type): v
 	<?php
 }
 add_action('quick_edit_custom_box', __NAMESPACE__ . '\\quick_edit_custom_box', 10, 2);
+
+/**
+ * Get core ACF field types supported for Quick Edit.
+ *
+ * @return array
+ */
+function get_core_quick_edit_field_types(): array {
+	return [
+		'text',
+		'textarea',
+		'wysiwyg',
+		'select',
+		'checkbox',
+		'radio',
+		'image',
+		'date_picker',
+		'datetime_picker',
+		'time_picker',
+		'file',
+		'gallery',
+		'true_false',
+		'relationship',
+		'post_object',
+		'page_link',
+		'user',
+		'taxonomy',
+		'google_map',
+		'color_picker',
+	];
+}
 
 /**
  * Get supported ACF field types for Quick Edit.
@@ -392,6 +398,7 @@ function save_post( int $post_id, \WP_Post $post ): void {
         if (!isset($_POST['acf_quick_edit_nonce']) || !wp_verify_nonce($_POST['acf_quick_edit_nonce'], 'acf_quick_edit_nonce')) {
             return;
         }
+		$core_types = get_core_quick_edit_field_types();
         $supported_types = get_supported_quick_edit_field_types();
         foreach ($fields as $column_key => $field) {
             $field_name = $field['field_name'] ?? '';
@@ -411,10 +418,7 @@ function save_post( int $post_id, \WP_Post $post ): void {
             if (!$acf_field) {
                 continue;
             }
-            // Allow custom sanitization
             $filtered_value = sanitize_quick_edit_field_value($field_type, $value, $acf_field, $post_id);
-            // Always apply core sanitization for core types as a fallback
-            $core_types = get_supported_quick_edit_field_types();
             if (in_array($field_type, $core_types, true)) {
                 $filtered_value = sanitize_core_quick_edit_field_value($field_type, $filtered_value, $acf_field);
             }
