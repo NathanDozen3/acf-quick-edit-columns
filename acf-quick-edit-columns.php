@@ -15,7 +15,7 @@
  * Plugin Name: ACF Quick Edit Columns
  * Plugin URI: https://github.com/NathanDozen3/acf-quick-edit-columns
  * Description: Adds ACF fields as columns and Quick Edit fields for custom post types in the WordPress admin, with pre-populated values.
- * Version: 1.5.9
+ * Version: 1.6.0
  * Author: Twelve Three Media
  * Author URI: https://www.digitalmarketingcompany.com/
  * License: GPL-2.0+
@@ -34,7 +34,7 @@ if (!defined('ABSPATH')) {
 
 // Define plugin version constant for easy reference
 if (!defined('ACF_QEC_VERSION')) {
-    define('ACF_QEC_VERSION', '1.5.9');
+    define('ACF_QEC_VERSION', '1.6.0');
 }
 
 // Load core plugin modules

@@ -1,6 +1,6 @@
 # ACF Quick Edit Columns
 
-[![WordPress Plugin Version](https://img.shields.io/badge/version-1.5.8-blue)](https://github.com/NathanDozen3/acf-quick-edit-columns)
+[![WordPress Plugin Version](https://img.shields.io/badge/version-1.6.0-blue)](https://github.com/NathanDozen3/acf-quick-edit-columns)
 [![License](https://img.shields.io/badge/license-GPL--2.0%2B-green)](https://www.gnu.org/licenses/gpl-2.0.html)
 [![WordPress Tested](https://img.shields.io/badge/WordPress-6.6%2B-blue)](https://wordpress.org)
 
@@ -127,6 +127,10 @@ Developed by [Twelve Three Media](https://www.digitalmarketingcompany.com/).
   - Test with a default theme (e.g., Twenty Twenty-Five) and only ACF active.
   - Ensure ACF is updated.
 
+## Developer Hooks & Filters
+
+For a full list of all available hooks, filters, and extension points (with arguments and real-world examples), see [`DEVELOPER-HOOKS.md`](./DEVELOPER-HOOKS.md).
+
 ## Core ACF Field Types Quick Edit Support Matrix
 
 The following table summarizes the Quick Edit support for each core ACF field type in this plugin. "Fully Supported" means the field type has a Quick Edit UI, JS prefill, column output, and save/sanitize logic. "Partially Supported" means the field type is only supported in the admin column (and saving), but does not have a Quick Edit UI (or, in the case of WYSIWYG, is rendered as a plain textarea, so advanced features are not available).
@@ -175,6 +179,8 @@ If you want to add support for more field types, see the "Extending: Supporting 
 
 ACF Quick Edit Columns is designed to be extensible. You can add support for your own custom ACF field types (or those provided by other plugins) in Quick Edit by using the provided WordPress hooks.
 
+**See [`DEVELOPER-HOOKS.md`](./DEVELOPER-HOOKS.md) for a full list of hooks, arguments, and advanced extension examples.**
+
 ### 1. Register Your Field Type for Quick Edit
 
 Add your field type to the list of supported types:
@@ -196,6 +202,43 @@ add_filter('acf_quick_edit_render_field_my_custom_type', function($output, $fiel
     $value = get_field($field['name'], $post_id);
     return '<input type="text" name="acf_' . esc_attr($field['name']) . '" value="' . esc_attr($value) . '" />';
 }, 10, 3);
+```
+
+#### Example: Star Rating Field (with JS prefill and custom column output)
+
+```php
+// Register the field type
+add_filter('acf_quick_edit_supported_field_types', function($types) {
+    $types[] = 'star_rating';
+    return $types;
+});
+
+// Render the field in Quick Edit
+add_filter('acf_quick_edit_render_field_star_rating', function($output, $field, $post_id) {
+    $value = get_field($field['name'], $post_id);
+    return '<input type="number" min="1" max="5" name="acf_' . esc_attr($field['name']) . '" value="' . esc_attr($value) . '" />';
+}, 10, 3);
+
+// Sanitize on save
+add_filter('acf_quick_edit_sanitize_field_star_rating', function($value, $field, $post_id) {
+    return intval($value);
+}, 10, 3);
+
+// Custom column output
+add_filter('acf_quick_edit_columns_star_rating', function($output, $post_id, $field_name, $field_type) {
+    $value = get_field($field_name, $post_id);
+    return esc_html($value) . ' stars';
+}, 10, 4);
+```
+
+**JavaScript Prefill Example:**
+
+```js
+jQuery(document).on('acfQuickEditPrefill', function(e, data) {
+    if (data.fieldType === 'star_rating') {
+        data.editRow.find('input[name="acf_' + data.fieldName + '"]').val(data.value);
+    }
+});
 ```
 
 ### 3. Sanitize Your Field Value on Save
@@ -225,40 +268,7 @@ add_filter('acf_quick_edit_columns_my_custom_type', function($output, $post_id, 
 
 The filter names shown above use a placeholder (e.g., `my_custom_type`) to represent your custom ACF field type's key. This key is the value you use when registering your custom field type in ACF. The plugin uses dynamic filter names based on the field type, so you must replace `my_custom_type` with your actual field type key.
 
-**For example:**
-
-If your custom field type is `star_rating`, you would use:
-
-- `acf_quick_edit_supported_field_types` to add `'star_rating'` to the supported types array.
-- `acf_quick_edit_render_field_star_rating` to render the field in Quick Edit.
-- `acf_quick_edit_sanitize_field_star_rating` to sanitize the value on save.
-- `acf_quick_edit_columns_star_rating` to customize the admin column display.
-
-**Example code:**
-
-```php
-add_filter('acf_quick_edit_supported_field_types', function($types) {
-    $types[] = 'star_rating';
-    return $types;
-});
-
-add_filter('acf_quick_edit_render_field_star_rating', function($output, $field, $post_id) {
-    $value = get_field($field['name'], $post_id);
-    return '<input type="number" min="1" max="5" name="acf_' . esc_attr($field['name']) . '" value="' . esc_attr($value) . '" />';
-}, 10, 3);
-
-add_filter('acf_quick_edit_sanitize_field_star_rating', function($value, $field, $post_id) {
-    return intval($value);
-}, 10, 3);
-
-add_filter('acf_quick_edit_columns_star_rating', function($output, $post_id, $field_name, $field_type) {
-    $value = get_field($field_name, $post_id);
-    return esc_html($value) . ' stars';
-}, 10, 4);
-```
-
-**Summary:**
-Replace `my_custom_type` in the filter name with your actual field type key (e.g., `star_rating`). This tells the plugin which field type your filter applies to.
+**For more advanced extension, see [`DEVELOPER-HOOKS.md`](./DEVELOPER-HOOKS.md).**
 
 ---
 
@@ -290,6 +300,15 @@ For issues, feature requests, or questions:
 - Contact [Twelve Three Media](https://www.digitalmarketingcompany.com/).
 
 ## Changelog
+
+### 1.6.0 (2025-06-11)
+- Security: Added nonce verification and user capability checks to Quick Edit save logic.
+- Refactor: DRYed up array/select/checkbox/relationship/taxonomy output logic in columns.
+- Docs: Added DEVELOPER-HOOKS.md with all hooks/filters and extension examples.
+- Docs: Expanded README with more extension and JS prefill examples.
+- Code Quality: Increased inline comments for complex JS/PHP logic.
+- Bugfix: Fixed minor issues with Quick Edit prefill and output for complex field types.
+- Maintenance: Version bump and documentation update.
 
 ### 1.5.9 (2025-06-11)
 - Consistent, translatable placeholder for all admin column outputs via acf_qec_placeholder().

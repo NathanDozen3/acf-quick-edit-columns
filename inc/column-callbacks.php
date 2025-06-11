@@ -32,7 +32,7 @@ use function implode;
  * @return string
  */
 function acf_qec_placeholder(): string {
-    return esc_html__('—', 'acf-quick-edit-columns');
+	return esc_html__('—', 'acf-quick-edit-columns');
 }
 
 /**
@@ -58,24 +58,31 @@ add_filter( 'acf_quick_edit_columns_oembed', __NAMESPACE__ . '\text_output', 10,
 add_filter( 'acf_quick_edit_columns_number', __NAMESPACE__ . '\text_output', 10, 4 );
 
 /**
- * Output for array fields.
+ * Helper to format array values for output (used by select, checkbox, relationship, taxonomy, gallery, etc.).
  *
- * @param string $output     The default output.
- * @param int    $post_id    The post ID.
- * @param string $field_name The field name.
- * @param string $field_type The field type.
- * @return string The formatted output.
+ * @param mixed $value The field value (array or string).
+ * @return string
+ */
+function acf_qec_format_array_output( $value ) {
+	if ( is_array( $value ) ) {
+		// Join array values with comma, escape each for HTML
+		return esc_html( implode( ', ', array_map( 'strval', $value ) ) );
+	}
+	return esc_html( $value ? $value : acf_qec_placeholder() );
+}
+
+/**
+ * Output for array-based fields (select, checkbox, relationship, taxonomy, gallery fallback).
+ * Uses the shared helper for DRY code.
  */
 function array_output( $output, $post_id, $field_name, $field_type ) {
-    $value = get_field( $field_name, $post_id );
-    if ( is_array( $value ) ) {
-        $joined = implode( ', ', array_map( 'strval', $value ) );
-        return esc_html( $joined ? $joined : acf_qec_placeholder() );
-    }
-    return esc_html( $value ? $value : acf_qec_placeholder() );
+	$value = get_field( $field_name, $post_id );
+	return acf_qec_format_array_output( $value );
 }
 add_filter( 'acf_quick_edit_columns_select', __NAMESPACE__ . '\array_output', 10, 4 );
 add_filter( 'acf_quick_edit_columns_checkbox', __NAMESPACE__ . '\array_output', 10, 4 );
+add_filter( 'acf_quick_edit_columns_relationship', __NAMESPACE__ . '\array_output', 10, 4 );
+add_filter( 'acf_quick_edit_columns_taxonomy', __NAMESPACE__ . '\array_output', 10, 4 );
 
 /**
  * Output for image fields.
@@ -87,11 +94,11 @@ add_filter( 'acf_quick_edit_columns_checkbox', __NAMESPACE__ . '\array_output', 
  * @return string The formatted output.
  */
 function image_output( $output, $post_id, $field_name, $field_type ) {
-    $value = get_field( $field_name, $post_id );
-    if ( is_array( $value ) && ! empty( $value['url'] ) ) {
-        return '<img src="' . esc_url( $value['url'] ) . '" style="max-width: 50px; height: auto;" alt="' . esc_attr( ! empty( $value['title'] ) ? $value['title'] : 'Image' ) . '" data-image-id="' . esc_attr( $value['ID'] ) . '">';
-    }
-    return acf_qec_placeholder();
+	$value = get_field( $field_name, $post_id );
+	if ( is_array( $value ) && ! empty( $value['url'] ) ) {
+		return '<img src="' . esc_url( $value['url'] ) . '" style="max-width: 50px; height: auto;" alt="' . esc_attr( ! empty( $value['title'] ) ? $value['title'] : 'Image' ) . '" data-image-id="' . esc_attr( $value['ID'] ) . '">';
+	}
+	return acf_qec_placeholder();
 }
 add_filter( 'acf_quick_edit_columns_image', __NAMESPACE__ . '\image_output', 10, 4 );
 
@@ -191,17 +198,13 @@ add_filter( 'acf_quick_edit_columns_file', __NAMESPACE__ . '\file_output', 10, 4
 
 /**
  * Output for gallery fields.
- *
- * @param string $output     The default output.
- * @param int    $post_id    The post ID.
- * @param string $field_name The field name.
- * @param string $field_type The field type.
- * @return string The formatted output.
+ * If value is an array of images, render thumbnails. Otherwise, fallback to array_output.
  */
 function gallery_output( $output, $post_id, $field_name, $field_type ) {
 	$value = get_field( $field_name, $post_id );
 	if ( is_array( $value ) && ! empty( $value ) ) {
-		if ( is_array( $value[0] ) ) {
+		if ( is_array( $value[0] ) && isset( $value[0]['url'] ) ) {
+			// Render image thumbnails for each image in the gallery
 			$images = array_map(
 				function( $image ) {
 					return '<img src="' . esc_url( $image['url'] ) . '" style="max-width: 50px; height: auto;" alt="' . esc_attr( ! empty( $image['title'] ) ? $image['title'] : 'Image' ) . '" data-image-id="' . esc_attr( $image['ID'] ) . '">';
@@ -209,9 +212,9 @@ function gallery_output( $output, $post_id, $field_name, $field_type ) {
 				$value
 			);
 			return implode( ' ', $images );
-		} else {
-			return esc_html( implode( ', ', array_map( 'strval', $value ) ) ? implode( ', ', array_map( 'strval', $value ) ) : acf_qec_placeholder() );
 		}
+		// Fallback: treat as array of IDs or strings
+		return acf_qec_format_array_output( $value );
 	}
 	return acf_qec_placeholder();
 }
