@@ -215,3 +215,24 @@ function acf_quick_edit_field_number_output( $field, $field_label, $field_name )
     <?php
 }
 add_action('acf_quick_edit_field_number', __NAMESPACE__ . '\acf_quick_edit_field_number_output', 10, 3 );
+
+/**
+ * Output a WYSIWYG (TinyMCE) field for Quick Edit.
+ *
+ * Note: Due to WordPress and ACF limitations, the full WYSIWYG (TinyMCE) editor cannot be loaded in Quick Edit.
+ * This callback renders a simple textarea for editing the field content. For full WYSIWYG features, use the main Edit screen.
+ *
+ * @param array  $field      The ACF field array.
+ * @param string $field_label The field label.
+ * @param string $field_name  The field name (meta key).
+ */
+function acf_quick_edit_field_wysiwyg_output( $field, $field_label, $field_name ) {
+    // WYSIWYG fields cannot load TinyMCE in Quick Edit. Render as textarea only.
+    ?>
+    <textarea name="acf_<?php echo esc_attr($field_name); ?>" class="acf-quick-edit" rows="4" style="width:100%"></textarea>
+    <p class="description" style="font-size:11px; color:#666; margin:2px 0 0;">
+        <?php esc_html_e('Note: Full WYSIWYG editing is only available in the main Edit screen.', 'acf-quick-edit-columns'); ?>
+    </p>
+    <?php
+}
+add_action('acf_quick_edit_field_wysiwyg', __NAMESPACE__ . '\acf_quick_edit_field_wysiwyg_output', 10, 3);

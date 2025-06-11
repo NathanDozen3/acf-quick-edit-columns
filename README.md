@@ -1,6 +1,6 @@
 # ACF Quick Edit Columns
 
-[![WordPress Plugin Version](https://img.shields.io/badge/version-1.5.7-blue)](https://github.com/NathanDozen3/acf-quick-edit-columns)
+[![WordPress Plugin Version](https://img.shields.io/badge/version-1.5.8-blue)](https://github.com/NathanDozen3/acf-quick-edit-columns)
 [![License](https://img.shields.io/badge/license-GPL--2.0%2B-green)](https://www.gnu.org/licenses/gpl-2.0.html)
 [![WordPress Tested](https://img.shields.io/badge/WordPress-6.6%2B-blue)](https://wordpress.org)
 
@@ -290,6 +290,14 @@ For issues, feature requests, or questions:
 - Contact [Twelve Three Media](https://www.digitalmarketingcompany.com/).
 
 ## Changelog
+
+### 1.5.8 (2025-06-11)
+- Added explicit Quick Edit callback for WYSIWYG fields: now always rendered as a plain textarea in Quick Edit, with a note about the limitation (no rich editor).
+- Fixed Quick Edit prefill for WYSIWYG fields: textarea now receives raw HTML, not double-encoded, for accurate editing.
+- Updated column output for WYSIWYG fields: now renders formatted HTML in the list table (not escaped as text).
+- Improved developer documentation and code comments for WYSIWYG support and limitations.
+- Updated support matrix and documentation to clarify WYSIWYG is only partially supported (no TinyMCE in Quick Edit).
+- Minor code and documentation cleanups for clarity and maintainability.
 
 ### 1.5.7 (2025-06-11)
 - Added full Quick Edit support for the following ACF field types: password, url, email, radio, true_false, and number. These fields now have Quick Edit UI, JS prefill, column output, and save/sanitize logic.

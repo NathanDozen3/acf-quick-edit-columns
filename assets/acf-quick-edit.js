@@ -122,6 +122,9 @@
 								} else {
 									$input.prop('checked', false);
 								}
+							} else if (fieldType === 'wysiwyg' && $input.is('textarea')) {
+								// Special handling for wysiwyg: set raw HTML value in textarea
+								$input.val(value || '');
 							} else {
 								$input.val(value || '');
 							}

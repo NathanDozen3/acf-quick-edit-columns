@@ -169,8 +169,8 @@ function manage_pages_custom_column(string $column, int $post_id): void {
 	 */
 	$filtered = apply_filters("acf_quick_edit_columns_{$field_type}", $output, $post_id, $field_name, $field_type);
 
-	if ($field_type === 'image') {
-		// Allow safe HTML for images (e.g., <img> tags).
+	if ($field_type === 'image' || $field_type === 'wysiwyg') {
+		// Allow safe HTML for images and wysiwyg fields (e.g., <img>, <p>, <strong> tags).
 		echo wp_kses_post($filtered);
 	} else {
 		echo esc_html($filtered);

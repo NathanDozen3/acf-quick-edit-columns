@@ -256,6 +256,19 @@ class FieldValueFormatter {
 	}
 
 	/**
+	 * Get value for wysiwyg field.
+	 *
+	 * For AJAX Quick Edit prefill, return the raw value (no escaping), so the textarea is not double-encoded.
+	 * For column output, escaping is handled elsewhere.
+	 *
+	 * @return string
+	 */
+	private function wysiwyg(): string {
+		$value = get_field( $this->field_name, $this->post_id );
+		return $value ? $value : '';
+	}
+
+	/**
 	 * Default fallback for unsupported field types.
 	 *
 	 * @return string
